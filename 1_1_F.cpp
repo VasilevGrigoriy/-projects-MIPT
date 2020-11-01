@@ -1,4 +1,4 @@
-﻿#include <fstream>
+#include <fstream>
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -7,17 +7,18 @@ long long mergesort_counting_inverses(std::vector<long long>& arr, long long beg
 {
     if (end_element == begin_element) return 0;
     long long middle_element = (begin_element + end_element) / 2;
-    long long first_count = mergesort_counting_inverses(arr, begin_element, middle_element) + mergesort_counting_inverses(arr, middle_element + 1, end_element);
+    long long first_count = mergesort_counting_inverses(arr, begin_element, middle_element) 
+        + mergesort_counting_inverses(arr, middle_element + 1, end_element);//Длинные строчки лучше разбивать
     long long second_count = 0;
     int i = 0;
     int j = 0;
     int pozishion = begin_element;
-    std::vector<long long> ar_levo(middle_element - begin_element + 1);
+    std::vector<long long> ar_levo(middle_element - begin_element + 1);//Аррр лево!
     for (int u = 0; u < middle_element - begin_element + 1; ++u)
     {
         ar_levo[u] = arr[begin_element + u];
     }
-    std::vector<long long> ar_pravo(end_element - middle_element);
+    std::vector<long long> ar_pravo(end_element - middle_element);//Аррр право!
     for (int u = 0; u < end_element - middle_element; ++u)
     {
         ar_pravo[u] = arr[middle_element + 1 + u];
