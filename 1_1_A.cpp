@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <string>
 
 void push(long long*& arr, long long& size, long long value)
@@ -13,6 +13,7 @@ void push(long long*& arr, long long& size, long long value)
     delete[] arr;
     arr = newArray;
 }
+
 void pop(long long*& arr, long long& size)
 {
     long long* newArray = new long long[size - 1];
@@ -24,6 +25,7 @@ void pop(long long*& arr, long long& size)
     delete[] arr;
     arr = newArray;
 }
+
 void clear(long long*& arr, long long& size)
 {
     long long* newArray = new long long[0];
@@ -31,11 +33,13 @@ void clear(long long*& arr, long long& size)
     delete[] arr;
     arr = newArray;
 }
+
 int main()
 {
     long long size = 0;
     long long* arr = new long long[size];
     std::string s = "hi";
+    
     while (s != "exit")
     {
         getline(std::cin, s);
@@ -78,10 +82,10 @@ int main()
             clear(arr, size);
             std::cout << "ok" << std::endl;
         }
-
     }
+    
     delete[] arr;
-    arr = nullptr;
+    arr = nullptr;//Не требуется, delete уже сделал всё
     std::cout << "bye" << std::endl;
 
     return 0;
