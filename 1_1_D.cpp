@@ -3,7 +3,6 @@
 #include<string>
 #include<stack>
 
-
 int main()
 {
 	std::ios::sync_with_stdio(false);
@@ -12,7 +11,7 @@ int main()
 	getline(std::cin, s);
 	n = atoi(s.c_str());
 	std::deque <int> levaya_polovina_queue;
-	std::deque<int> pravaya_polovina_queue;
+	std::deque <int> pravaya_polovina_queue;
 	int size_queue = 0;
 	while (n != 0)
 	{
