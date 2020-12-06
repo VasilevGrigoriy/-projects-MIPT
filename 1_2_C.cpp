@@ -86,7 +86,7 @@ int main()
    
     long long first = 0;
     long long end = n - 1;
-    while (end - first > 1)
+    while (end - first > 1)// Почему бы не выделить и этот цикл в функцию, чтобы сделать main лаконичее?
     {
         long long middle_element = partition(massive, first, end);
         if (permament_k == middle_element)
