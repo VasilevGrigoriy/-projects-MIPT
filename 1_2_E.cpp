@@ -19,7 +19,7 @@ int main()
 	{
 		int next_element;
 		std::cin >> next_element;
-		if (next_element < massive[k - 1])
+		if (next_element < massive[k - 1])// Серьёзно, пузырёк в main? 
 		{
 			massive[k - 1] = next_element;
 			for (int j = k - 1; j > 0; --j)
