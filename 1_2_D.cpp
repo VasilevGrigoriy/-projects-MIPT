@@ -44,7 +44,7 @@ void decreaseKey(std::vector<std::pair<long long, long long>>& two_tree, std::st
     long long how_low = atoi(next_move.c_str());
     for (long long i = 1; i <= two_tree.size(); ++i)
     {
-        if (two_tree[i].second == what_time)
+        if (two_tree[i].second == what_time)// Хитро, но нет, для уменьшения одной чиселки черезчур дорого
         {
             two_tree[i].first -= how_low;
             siftUp(two_tree, i);
@@ -96,6 +96,3 @@ int main()
     }
     return 0;
 }
-
-
-
