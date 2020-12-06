@@ -21,6 +21,7 @@ void Push(std::deque<int>& levaya_polovina_queue, std::deque <int>& pravaya_polo
 		levaya_polovina_queue.pop_front();
 	}
 }
+
 void Pop(std::deque<int>& levaya_polovina_queue, std::deque <int>& pravaya_polovina_queue, int& size_queue) {
 	std::cout << pravaya_polovina_queue.front() << std::endl;
 	pravaya_polovina_queue.pop_front();
@@ -39,6 +40,7 @@ void Pop(std::deque<int>& levaya_polovina_queue, std::deque <int>& pravaya_polov
 		levaya_polovina_queue.pop_front();
 	}
 }
+
 void Push_Middle(std::deque<int>& levaya_polovina_queue, std::deque <int>& pravaya_polovina_queue, std::string snext, int& size_queue) {
 	std::string next_element_in_string = snext.substr(2, snext.size() - 2);
 	int next_element = atoi(next_element_in_string.c_str());
