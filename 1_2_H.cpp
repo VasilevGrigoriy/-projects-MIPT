@@ -8,7 +8,8 @@ void Sort(std::vector<std::pair<long long,long long>>& arr, int i)
     {
         return;
     }
-    std::vector<long long> cnt(256, 0);
+    std::vector<long long> cnt(256, 0);// Для каждой итерации создавать новый массив плохая идея, так как он в конце не нужен
+    // А в памяти продолжает висеть пока все рекурсии не закончатся
     for (int i = 0; i < arr.size(); ++i)
     {
         ++cnt[arr[i].first % 256];
@@ -17,7 +18,7 @@ void Sort(std::vector<std::pair<long long,long long>>& arr, int i)
     {
         cnt[i] += cnt[i - 1];
     }
-    std::vector<std::pair<long long, long long>> ans(arr.size());
+    std::vector<std::pair<long long, long long>> ans(arr.size());//Аналогично
     for (int i = arr.size() - 1; i >= 0; --i)
     {
         ans[cnt[arr[i].first % 256]-1].first = arr[i].first/256;
@@ -43,7 +44,7 @@ int main()
         std::cin >> z;
         numbers.push_back({ z,z });
     }
-    Sort(numbers, 1);
+    Sort(numbers, 1);//Для таких вещей обычно делают либо ещё одну "декорирующую" функцию с нужными парамемтрами, либо параметры по умолчанию
     for (long long i = 0; i < n; ++i)
     {
         std::cout << numbers[i].second << ' ';
