@@ -47,7 +47,8 @@ int main()
 	std::cout.tie(0);
 	long long n, m, k;
 	std::cin >> n >> m >> k;
-	std::vector<std::set<long long>> massives(m + 1);
+	std::vector<std::set<long long>> massives(m + 1); // Зачем создавать сразу всех. Можно сделать массив ссылок, а после уже создавать множества
+	// по мере необходимости
 	std::map<long long, std::set<long long>> massives_of_numbers;
 	std::string s;
 	getline(std::cin, s);
