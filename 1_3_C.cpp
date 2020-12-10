@@ -179,7 +179,6 @@ int main()
 			std::cin >> statistic_from_max;
 			std::cout << MAX_K_STATISTIC(root, statistic_from_max) << '\n';
 		}
-
 	}
 	return 0;
 }
