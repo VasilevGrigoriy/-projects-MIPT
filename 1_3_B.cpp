@@ -28,7 +28,7 @@ splay* grand_parent(splay* knot) {
     if (knot != 0 && parent(knot) != 0) return parent(parent(knot));
     else return 0;
 }
-void returning_parent(splay* knot_child, splay* knot_parent) {
+void returning_parent(splay* knot_child, splay* knot_parent) {//recuva тогда уж
     if (knot_child != 0) {
         knot_child->parent = knot_parent;
     }
@@ -148,6 +148,7 @@ splay* first_next(splay* knot, long long element, splay* temp) {
     }
     return 0;
 }
+//Сплит который возвращает только одно дерево?
 splay* SPLIT(splay* knot, long long element) {
     if (knot == 0) return 0;
     splay* find_element = finding_element(knot, element);
@@ -156,6 +157,7 @@ splay* SPLIT(splay* knot, long long element) {
     knot = SPLAY(find_element);
     return knot;
 }
+//Сделай тогда add через split и merge, раз реализовал их
 splay* ADD(splay* knot, long long element) {
     knot = SPLIT(knot, element);
     if (knot == 0) return knot;
