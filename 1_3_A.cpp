@@ -14,16 +14,20 @@ struct AVL {
 		height = 1;
 	}
 };
+
 long long height_1(AVL* knot) {
 	if (knot == 0) return 0;
 	else return knot->height;
 }
+
 long long balance_factor(AVL* knot) {
 	return height_1(knot->left) - height_1(knot->right);
 }
+
 void height(AVL* knot) {
 	knot->height = std::max(height_1(knot->right), height_1(knot->left)) + 1;
 }
+
 AVL* rotateright(AVL* knot_current) {
 	AVL* knot_left = knot_current->left;
 	knot_current->left = knot_left->right;
@@ -32,6 +36,7 @@ AVL* rotateright(AVL* knot_current) {
 	height(knot_left);
 	return knot_left;
 }
+
 AVL* rotateleft(AVL* knot_current) {
 	AVL* knot_right = knot_current->right;
 	knot_current->right = knot_right->left;
@@ -40,6 +45,7 @@ AVL* rotateleft(AVL* knot_current) {
 	height(knot_right);
 	return knot_right;
 }
+
 AVL* balancing(AVL* knot) {
 	height(knot);
 	if (balance_factor(knot) == 2) {
@@ -56,6 +62,7 @@ AVL* balancing(AVL* knot) {
 	}
 	return knot;
 }
+
 AVL* insert(AVL* knot, long long k) {
 	if (knot == 0) return new AVL(k);
 	else {
@@ -69,17 +76,21 @@ AVL* insert(AVL* knot, long long k) {
 	}
 	return balancing(knot);
 }
+
 AVL* findmin(AVL* knot) {
 	if (knot->left) return findmin(knot->left);
 	else return knot;
 }
+
 AVL* findmax(AVL* knot) {
 	if (knot->right) return findmax(knot->right);
 	else return knot;
 }
+
 AVL* deletemin(AVL* knot) {
 	if (knot->left == 0)
 		return knot->right;
+	//утечка памяти, нужно явно удалить последний left элемент, не только присваивать его правого сына к родителю
 	knot->left = deletemin(knot->left);
 	return balancing(knot);
 }
