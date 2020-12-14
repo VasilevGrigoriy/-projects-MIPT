@@ -88,10 +88,18 @@ AVL* findmax(AVL* knot) {
 }
 
 AVL* deletemin(AVL* knot) {
-	if (knot->left == 0)
+	if (knot->left == 0) {
 		return knot->right;
-	//утечка памяти, нужно явно удалить последний left элемент, не только присваивать его правого сына к родителю
-	knot->left = deletemin(knot->left);
+	}
+	//передаю в левую подвершину значения правого сына этой левой подвершины, после подчищаю память этого сына
+	AVL* for_delete= deletemin(knot->left);
+	if(for_delete==nullptr) return balancing(knot);
+	AVL* left_true = knot->left;
+	left_true->key = for_delete->key;
+	left_true->height = for_delete->height;
+	left_true->left = for_delete->left;
+	left_true->right = for_delete->right;
+	free(for_delete);
 	return balancing(knot);
 }
 AVL* delete_key(AVL* knot, long long k) {
