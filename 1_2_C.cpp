@@ -11,6 +11,7 @@ long long partition(std::vector<long long>& arr, long long first, long long end)
     long long target_element = arr[target_index];
     long long i = first;
     long long j = end;
+    
     while (i != target_index && j != target_index)
     {
         if (arr[i] > target_element && arr[j] <= target_element)
@@ -33,6 +34,7 @@ long long partition(std::vector<long long>& arr, long long first, long long end)
             --j;
         }
     }
+    
     if (i == target_index && j != target_index)
     {
         long long temp = j + 1;
@@ -68,6 +70,8 @@ long long partition(std::vector<long long>& arr, long long first, long long end)
         return target_index;
     }
 }
+
+
 void main_work(long long& k, long long permament_k, long long n, std::vector<long long>& massive) {
     long long first = 0;
     long long end = n - 1;
@@ -97,6 +101,7 @@ void main_work(long long& k, long long permament_k, long long n, std::vector<lon
     int result = massive[k + first];
     std::cout << result;
 }
+
 
 int main()
 {
