@@ -1,6 +1,7 @@
-﻿#include<iostream>
+#include<iostream>
 #include<algorithm>
 #include<vector>
+
 void siftUP(std::vector < long long>& massive, long long i) {
     //поставить элемент на сове место c "движением вверх"
     while (i > 1 && massive[i] >= massive[i / 2]) {
@@ -8,6 +9,7 @@ void siftUP(std::vector < long long>& massive, long long i) {
         i /= 2;
     }
 }
+
 void siftDOWN(std::vector < long long>& massive, long long i) {
     //также поставить элемент на свое место, только "с движение вниз"
     while (2 * i <= massive.size() - 1) {
