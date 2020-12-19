@@ -1,10 +1,11 @@
-﻿#include <string>
+#include <string>
 #include <iostream>
 #include <vector>
 class BigInteger {
 	static const int base = 10000;
 	std::vector<int> digits;
 	bool sign = false;
+	
 public:
 
 	bool operator==(const BigInteger&) const;
@@ -31,6 +32,7 @@ public:
 	BigInteger(const BigInteger&);
 	BigInteger(const char*);
 
+	// А зачем friend? Они и так должны работать
 	friend BigInteger operator+(const BigInteger& b_left, const BigInteger& b_right);
 	friend BigInteger operator-(const BigInteger& b_left, const BigInteger& b_right);
 	friend BigInteger operator*(const BigInteger& b_left, const BigInteger& b_right);
@@ -48,6 +50,7 @@ public:
 	
 	BigInteger& ChangeSign(BigInteger& b) {
 		// почему-то просто с - плохо работал
+		// Может потому что он должен копию отдавать?
 		if (b == 0) return b;
 		b.sign = !(b.sign);
 		return b;
@@ -77,7 +80,7 @@ BigInteger::BigInteger(int i) {
 	}
 	this->remove_leading_zeros();
 }
-BigInteger::BigInteger(const BigInteger& b) {
+BigInteger::BigInteger(const BigInteger& b) {// У вектора тоже есть конструктор копирования и можно было бы воспользоваться им
 	digits.resize(b.digits.size());
 	sign = b.sign;
 	for (int i = 0; i < static_cast<int>(b.digits.size()); ++i) {
@@ -97,7 +100,7 @@ BigInteger::BigInteger(std::string& s) {
 		else {
 			this->sign = 0;
 		}
-		for (int i = s.length() - 4; i > -5; i -= 4) {
+		for (int i = s.length() - 4; i > -5; i -= 4) {// А почему 4, у тебя ведь база изменяемая, по факту должно быть log(base), иначе запутаешься
 			if (i < 0) {
 				this->digits.push_back(atoi(s.substr(0, 4 + i).c_str()));
 			}
@@ -109,7 +112,7 @@ BigInteger::BigInteger(std::string& s) {
 	this->remove_leading_zeros();
 }
 BigInteger::BigInteger(const char* x) {
-	std::string s=x;
+	std::string s=x;// Зачем повторять весь код сверху, если можно просто написать BI(const char* x): BI(std::string(x)){}
 	if (s.length() == 0) {
 		this->sign = 0;
 	}
@@ -142,7 +145,7 @@ void BigInteger::remove_leading_zeros() {
 		this->sign = 0;
 	}
 }
-BigInteger BigInteger::operator-() const {
+BigInteger BigInteger::operator-() const {// Как то  ты к нему без уважения... прочее...
 	BigInteger copy = *this;
 	if (copy == 0) return copy;
 	else {
@@ -256,7 +259,7 @@ BigInteger& BigInteger::operator-=(const BigInteger& b) {
 	}
 	else {
 		if (*this < b) {
-			BigInteger temp = *this;
+			BigInteger temp = *this;// Копирование дорогая операция, и ожидается в -= и += их нет
 			*this = b;
 			return ChangeSign((*this -= temp));
 		}
@@ -377,7 +380,7 @@ std::ostream& operator <<(std::ostream& out, const BigInteger& b) {
 	if (b.digits.size() == 0) out << 0;
 	else {
 		std::string str = b.toString();
-		for (size_t i = 0; i < str.size(); i++)
+		for (size_t i = 0; i < str.size(); i++)// Посимвольный вывод? String умеет сразу печататься out<<str;
 			out << str[i];
 	}
 	return out;
@@ -431,7 +434,7 @@ BigInteger::operator std::string() {
 					sum++;
 					temp /= 10;
 				}
-				sum = 4 - sum;
+				sum = 4 - sum;// аналогичный момент по некорректной базе
 				while (sum != 0) {
 					s += '0';
 					sum--;
@@ -447,6 +450,7 @@ BigInteger::operator std::string() {
 	}
 	return s;
 }
+// Зачем так сложно, просто return *this!=0
 BigInteger::operator bool() {
 	BigInteger temp = 0;
 	if (*this == temp) return false;
@@ -472,6 +476,7 @@ BigInteger NOD(BigInteger b1, BigInteger b2) {
 			b1 /= 2;
 			b2 /= 2;
 		}
+		// %2 довольно дорогая операция, её можно было бы закешировать для последующих if
 		else if (b1 % 2 != 0 && b2 % 2 == 0) b2 /= 2;
 		else if (b1 % 2 == 0 && b2 % 2 != 0) b1 /= 2;
 		else if (b1 % 2 != 0 && b2 % 2 != 0 && b1 >= b2) b1 -= b2;
@@ -509,7 +514,8 @@ public:
 	std::string toString() const;
 	std::string asDecimal(const size_t&) const;
 	explicit operator double() const;
-
+	
+	// friend тоже не нужны
 	friend Rational operator+(const Rational&, const Rational&);
 	friend Rational operator-(const Rational&, const Rational&);
 	friend Rational operator*(const Rational&, const Rational&);
