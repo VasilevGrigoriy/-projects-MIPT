@@ -45,8 +45,9 @@ public:
 	void get_r();
 	void remove_leading_zeros();
 	std::string toString() const;
-
+	
 	BigInteger& ChangeSign(BigInteger& b) {
+		// почему-то просто с - плохо работал
 		if (b == 0) return b;
 		b.sign = !(b.sign);
 		return b;
@@ -66,7 +67,7 @@ BigInteger::BigInteger(int i) {
 		sign = 1;
 		i = -i;
 	}
-	if (i == 0) {
+	else if (i == 0) {
 		digits.push_back(0);
 		sign = 0;
 	}
@@ -108,7 +109,7 @@ BigInteger::BigInteger(std::string& s) {
 	this->remove_leading_zeros();
 }
 BigInteger::BigInteger(const char* x) {
-	std::string s(x);
+	std::string s=x;
 	if (s.length() == 0) {
 		this->sign = 0;
 	}
@@ -150,7 +151,7 @@ BigInteger BigInteger::operator-() const {
 	}
 }
 void BigInteger::get_r() {
-
+	// перенос на разряд вперед, нужно в деление
 	if (digits.size() == 0) {
 		digits.push_back(0);
 		return;
@@ -165,7 +166,6 @@ std::string BigInteger::toString() const {
 	std::string ans;
 	if (sign) ans += "-";
 	ans += std::to_string(digits[digits.size() - 1]);
-
 	for (int i = digits.size() - 2; i >= 0; --i) {
 		if (digits[i] < 10) ans += "000";
 		else if (digits[i] < 100) ans += "00";
@@ -224,6 +224,7 @@ bool BigInteger::operator>=(const BigInteger& b_right) const {
 
 //-------------------------СОСТАВНОЕ ПРИСВАИВАНИЕ-------------------------------------------------------------------
 BigInteger& BigInteger::operator+=(const BigInteger& b) {
+	// меняю знаки, если оба не + +
 	if (sign) {
 		if (b.sign) {
 			return ChangeSign(ChangeSign(*this) += (-b));
@@ -245,6 +246,7 @@ BigInteger& BigInteger::operator+=(const BigInteger& b) {
 	}
 }
 BigInteger& BigInteger::operator-=(const BigInteger& b) {
+	// меняю знаки, если оба не + +
 	if (sign) {
 		if (b.sign) return ChangeSign(ChangeSign(*this) -= (-b));
 		else return ChangeSign(ChangeSign(*this) += (b));
@@ -276,7 +278,9 @@ BigInteger& BigInteger::operator*=(const BigInteger& b) {
 	for (int i = 0; i < static_cast<int>(digits.size()); ++i) {
 		int transfer = 0;
 		for (int j = 0; j < static_cast<int>(b.digits.size()) || transfer != 0; ++j) {
-			int res = result.digits[i + j] + digits[i] * (j < static_cast<int>(b.digits.size()) ? b.digits[j] : 0) + transfer;
+			int res;
+			if(j < static_cast<int>(b.digits.size())) res = result.digits[i + j] + digits[i] * b.digits[j] + transfer;
+			else  res = transfer;
 			result.digits[i + j] = res % base;
 			transfer = res / base;
 		}
@@ -460,11 +464,19 @@ BigInteger operator""_bi(char x) {
 	return BigInteger(x);
 }
 BigInteger NOD(BigInteger b1, BigInteger b2) {
-	while (b1 > 0 && b2 > 0) {
-		if (b1 > b2) b1 %= b2;
-		else b2 %= b1;
+	// для Rational, бинарный алгоритм Евклида, сделал без реккурсии, чтобы было меньше копий
+	while (true) {
+		if (b1 == 0 || b1 == 1) return b2;
+		if (b2 == 0 || b2==1) return b1;
+		else if (b1 % 2 == 0 && b2 % 2 == 0) {
+			b1 /= 2;
+			b2 /= 2;
+		}
+		else if (b1 % 2 != 0 && b2 % 2 == 0) b2 /= 2;
+		else if (b1 % 2 == 0 && b2 % 2 != 0) b1 /= 2;
+		else if (b1 % 2 != 0 && b2 % 2 != 0 && b1 >= b2) b1 -= b2;
+		else if (b1 % 2 != 0 && b2 % 2 != 0 && b1 < b2) b2 -= b1;
 	}
-	return b1 + b2;
 }
 //--------------------------------------------------------------------------------------------------------------------
 
@@ -474,8 +486,8 @@ BigInteger NOD(BigInteger b1, BigInteger b2) {
 //-------------------------RATIONAL-----------------------------------------------------------------------------------
 class Rational {
 
-	BigInteger numerator = 0;
-	BigInteger denominator = 1;
+	BigInteger numerator = 0;// числитель
+	BigInteger denominator = 1;// знаменатель
 public:
 	Rational();
 	Rational(const BigInteger&, const BigInteger&);
@@ -495,14 +507,14 @@ public:
 	Rational& operator/=(const Rational&);
 
 	std::string toString() const;
-	std::string asDecimal(size_t) const;
+	std::string asDecimal(const size_t&) const;
 	explicit operator double() const;
 
 	friend Rational operator+(const Rational&, const Rational&);
 	friend Rational operator-(const Rational&, const Rational&);
 	friend Rational operator*(const Rational&, const Rational&);
 	friend Rational operator/(const Rational&, const Rational&);
-	BigInteger support(const BigInteger& b) {
+	BigInteger Change_minus(const BigInteger& b) {
 		BigInteger copy = b;
 		if (copy >= 0) return copy;
 		else
@@ -513,21 +525,22 @@ public:
 	}
 	Rational operator-() const;
 	void to_irreducible_fraction(BigInteger& b1, BigInteger& b2) {
+		// приведение к несократимой дроби
 		if (b2 == 1) return;
 		else if (b2 == -1) {
 			b2 *= -1;
 			b1 *= -1;
 		}
 		else {
-			BigInteger nod = NOD(support(b1), support(b2));
+			BigInteger nod = NOD(Change_minus(b1), Change_minus(b2));
 			if ((b1 >= 0 && b2 > 0) || (b1 < 0 && b2 < 0)) {
-				b1 = support(b1 / nod);
-				b2 = support(b2 / nod);
+				b1 = Change_minus(b1 / nod);
+				b2 = Change_minus(b2 / nod);
 			}
 			else
 			{
-				b1 = -support(b1 / nod);
-				b2 = support(b2 / nod);
+				b1 = -Change_minus(b1 / nod);
+				b2 = Change_minus(b2 / nod);
 			}
 		}
 	}
@@ -581,24 +594,28 @@ Rational& Rational::operator=(Rational r) {
 	return *this;
 }
 Rational& Rational::operator+=(const Rational& r) {
+	// в BigInt самостоятельно хранятся - , поэтому ненужно рассматривать все случаи на знаки числителя и знаменателя
 	numerator = numerator * r.denominator + r.numerator * denominator;
 	denominator = denominator * r.denominator;
 	to_irreducible_fraction(numerator, denominator);
 	return *this;
 }
 Rational& Rational::operator-=(const Rational& r) {
+	// в BigInt самостоятельно хранятся - , поэтому ненужно рассматривать все случаи на знаки числителя и знаменателя
 	numerator = numerator * r.denominator - r.numerator * denominator;
 	denominator = denominator * r.denominator;
 	to_irreducible_fraction(numerator, denominator);
 	return *this;
 }
 Rational& Rational::operator*=(const Rational& r) {
+	// в BigInt самостоятельно хранятся - , поэтому ненужно рассматривать все случаи на знаки числителя и знаменателя
 	numerator = numerator * r.numerator;
 	denominator = denominator * r.denominator;
 	to_irreducible_fraction(numerator, denominator);
 	return *this;
 }
 Rational& Rational::operator/=(const Rational& r) {
+	// в BigInt самостоятельно хранятся - , поэтому ненужно рассматривать все случаи на знаки числителя и знаменателя
 	numerator = numerator * r.denominator;
 	denominator = denominator * r.numerator;
 	to_irreducible_fraction(numerator, denominator);
@@ -637,8 +654,8 @@ Rational Rational::operator-() const {
 	}
 }
 std::string Rational::toString() const {
+	// Через функции BigInt для числителя и знаменателя
 	std::string s = "";
-
 	if (numerator == 0) {
 		s += '0';
 		return s;
@@ -654,7 +671,7 @@ std::string Rational::toString() const {
 		return s;
 	}
 }
-std::string Rational::asDecimal(size_t prec = 0) const {
+std::string Rational::asDecimal(const size_t& prec = 0) const {
 	std::string ans;
 	if (numerator < 0) ans += '-';
 	BigInteger numer_new = (numerator > 0 ? numerator : -numerator);
