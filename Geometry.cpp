@@ -83,9 +83,9 @@ Line::Line(const Point& p, double k) {
 //----------------------------------------Булевы операции-------------------------------------------
 bool Line::operator==(const Line& l) const {// Привычка, верю, но не стоит забывать о точности double и что == не надёжен. С 0 тоже стоит сравнивать
     double k = a / l.a;
-    if ((a == 0 && l.a != 0) || (a != 0 && l.a == 0)) return false;
-    if ((b == 0 && l.b != 0) || (b != 0 && l.b == 0)) return false;
-    if ((c == 0 && l.c != 0) || (c != 0 && l.c == 0)) return false;
+    if ((is_peer(a,0) && !(is_peer(l.a,0))) || (!is_peer(a,0) && (is_peer(l.a,0)) return false;
+    if ((is_peer(b,0) && !(is_peer(l.b,0))) || (!is_peer(b,0) && (is_peer(l.b,0)) return false;
+    if ((is_peer(c,0) && !(is_peer(l.c,0))) || (!is_peer(c,0) && (is_peer(l.c,0)) return false;
     if (is_peer(a, k * l.a) && is_peer(b, k * l.b) && is_peer(c, k * l.c)) return true;
     else return false;
 }
@@ -297,7 +297,7 @@ public:
 };
 
 //-----------------------------------------------------Конструктор---------------------------------------
-Circle::Circle(const Point& p, double r) {// А как же конструктор от суперкласса? 
+Circle::Circle(const Point& p, double r):Ellipse(p,p,2*r) {// А как же конструктор от суперкласса? 
     f1 = p;
     f2 = p;
     this->big_line = r;
@@ -568,19 +568,30 @@ bool Polygon::isSimilarTo(const Shape& sh) const {
 
 // Такой способ плохо работает для вогнутых многоугольников, так как область соединения может выходить за границы прямоугольника
 bool Polygon::containsPoint(Point p) const {
-    double sum = 0;
-    for (int i = 0; i < static_cast<int>(points.size()); ++i) {
-        if (i == static_cast<int>(points.size()) - 1) {
-            Polygon pol{ p,points[i],points[0] };
-            sum += pol.area();
+    // Алгоритм на пересечениях сторон многоугольника прямой, паралелльной x и проходящей через p
+    // Если число пересечений четно - лежит не внутри многоугольника, иначе - внутри
+    bool is_even = 1;
+    for (size_t i = 0; i < points.size(); ++i) {
+        if (i == points.size() - 1) {
+            Point a = points[i];
+            Point b = points[0];
+            Point c = p;
         }
         else {
-            Polygon pol{ p,points[i],points[i + 1] };
-            sum += pol.area();
+            Point a = points[i];
+            Point b = points[i + 1];
+            Point c = p;
+        }
+        if (a.y == b.y) continue;// Не влияет на число пересечений
+        else if (is_peer(p.y, std::max(a.y, b.y)) && (p.x < std::min(a.x, b.x))) is_even = !is_even;// Пересечение
+        else if (is_peer(p.y, std::min(a.y, b.y))) continue;// Нет пересечения
+        else {
+            double pov_current = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x);
+            if (((p.y > a.y && p.y < b.y) || (p.y<a.y && p.y>b.y)) && pov_current > 0) is_even = !is_even;
+            // Если точка p лежит между a и b по y и угол поворота левый, то будет пересечение
         }
     }
-    if (sum > this->area() || !is_peer(sum, (this->area()))) return false;
-    else return true;
+    return !(is_even);
 }
 
 //-------------------------------------Повороты фигуры---------------------------------------------
