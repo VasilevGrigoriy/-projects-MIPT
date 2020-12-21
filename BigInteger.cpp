@@ -433,8 +433,8 @@ BigInteger operator""_bi(char x) {
 }
 BigInteger NOD(BigInteger b1, BigInteger b2) {
 	// для Rational, бинарный алгоритм Евклида, сделал без реккурсии, чтобы было меньше копий
+	BigInteger ans = 1;
 	while (true) {
-		BigInteger ans = 1;
 		if (b1 == 0) return b2*ans;
 		if (b2 == 0) return b1*ans;
 		if (b1 == 1) return ans;
