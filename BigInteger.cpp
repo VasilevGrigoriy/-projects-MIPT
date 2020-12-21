@@ -224,13 +224,9 @@ BigInteger& BigInteger::operator-=(const BigInteger& b) {
 	}
 	else {
 		if (*this < b) {
-			int transfer = 0;
-			for (size_t i = 0; i < b.digits.size() || transfer != 0; ++i) {
-				digits[i] = b.digits[i]+transfer + (i < digits.size() ? digits[i] : 0);
-				transfer = digits[i] < 0;
-				if (transfer != 0) digits[i] += base;
-			}
-			this->remove_leading_zeros();
+			BigInteger temp = *this;
+			*this = b;
+			return ChangeSign((*this -= temp));
 		}
 		else {
 			int transfer = 0;
@@ -444,10 +440,10 @@ BigInteger NOD(BigInteger b1, BigInteger b2) {
 			b1 /= 2;
 			b2 /= 2;
 		}
-		else if (pr1 % 2 != 0 && pr2 % 2 == 0) b2 /= 2;
-		else if (pr1 % 2 == 0 && pr2 % 2 != 0) b1 /= 2;
-		else if (pr1 % 2 != 0 && pr2 % 2 != 0 && b1 >= b2) b1 -= b2;
-		else if (pr1 % 2 != 0 && pr2 % 2 != 0 && b1 < b2) b2 -= b1;
+		else if (pr1!= 0 && pr2== 0) b2 /= 2;
+		else if (pr1== 0 && pr2!= 0) b1 /= 2;
+		else if (pr1!= 0 && pr2!= 0 && b1 >= b2) b1 -= b2;
+		else if (pr1!= 0 && pr2!= 0 && b1 < b2) b2 -= b1;
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------
