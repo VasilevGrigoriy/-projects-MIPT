@@ -46,7 +46,9 @@ public:
 		b.sign = !(b.sign);
 		return b;
 	}
-
+	bool is_even() const {
+		return (digits[0] % 2 == 0);
+	}
 	friend std::ostream& operator <<(std::ostream&, const BigInteger&);
 	friend std::istream& operator>>(std::istream&, BigInteger&);
 };
@@ -432,18 +434,26 @@ BigInteger operator""_bi(char x) {
 BigInteger NOD(BigInteger b1, BigInteger b2) {
 	// для Rational, бинарный алгоритм Евклида, сделал без реккурсии, чтобы было меньше копий
 	while (true) {
-		BigInteger pr1 = b1 % 2;
-		BigInteger pr2 = b2 % 2;
-		if (b1 == 0 || b1 == 1) return b2;
-		else if (b2 == 0 || b2 == 1) return b1;
-		else if (b1 % 2 == 0 && b2 % 2 == 0) {
+		BigInteger ans = 1;
+		if (b1 == 0) return b2*ans;
+		if (b2 == 0) return b1*ans;
+		if (b1 == 1) return ans;
+		if (b2 == 1) return ans;
+		else if (b1.is_even() && b2.is_even()) {
 			b1 /= 2;
 			b2 /= 2;
+			ans *= 2;
 		}
-		else if (pr1!= 0 && pr2== 0) b2 /= 2;
-		else if (pr1== 0 && pr2!= 0) b1 /= 2;
-		else if (pr1!= 0 && pr2!= 0 && b1 >= b2) b1 -= b2;
-		else if (pr1!= 0 && pr2!= 0 && b1 < b2) b2 -= b1;
+		else if (!(b1.is_even()) && b2.is_even()) b2 /= 2;
+		else if (b1.is_even() && !(b2.is_even())) b1 /= 2;
+		else if (!(b1.is_even()) && !(b2.is_even()) && b1 >= b2) {
+			b1 -= b2;
+			b1 /= 2;
+		}
+		else if (!(b1.is_even()) && !(b2.is_even()) && b1 < b2) {
+			b2 -= b1;
+			b2 /= 2;
+		}
 	}
 }
 //--------------------------------------------------------------------------------------------------------------------
