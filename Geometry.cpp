@@ -81,7 +81,7 @@ Line::Line(const Point& p, double k) {
 }
 
 //----------------------------------------Булевы операции-------------------------------------------
-bool Line::operator==(const Line& l) const {
+bool Line::operator==(const Line& l) const {// Привычка, верю, но не стоит забывать о точности double и что == не надёжен. С 0 тоже стоит сравнивать
     double k = a / l.a;
     if ((a == 0 && l.a != 0) || (a != 0 && l.a == 0)) return false;
     if ((b == 0 && l.b != 0) || (b != 0 && l.b == 0)) return false;
@@ -154,7 +154,7 @@ public:
 };
 
 //---------------------------------------------Конструктор---------------------------------------------
-Ellipse::Ellipse(const Point& p1, const Point& p2, double r) {
+Ellipse::Ellipse(const Point& p1, const Point& p2, double r) {// Зачем такие копирования делать если есть конструктор от точек
     f1.x = p1.x;
     f1.y = p1.y;
     f2.x = p2.x;
@@ -194,25 +194,29 @@ double Ellipse::perimeter() const {
     double b_small = sqrt(big_line * big_line * (1 - eccentricity() * eccentricity()));
     return (M_PI * (3 * (big_line + b_small) - sqrt((3 * big_line + b_small) * (big_line + 3 * b_small))));
 }
+
 double Ellipse::area() const {
     double b_small = sqrt(big_line * big_line * (1 - eccentricity() * eccentricity()));
     return (M_PI * big_line * b_small);
 }
+
 bool Ellipse::operator==(const Shape& s) const {
     if (dynamic_cast<const Ellipse*>(&s) == nullptr) return false;
-    const Ellipse copy = dynamic_cast<const Ellipse&>(s);
+    const Ellipse copy = dynamic_cast<const Ellipse&>(s);// Зачем 2 раза то, можно просто сделать copy и сравнить её
     double copy_big_line = copy.big_line;
     if (is_peer(copy.f1.x, f1.x) && is_peer(copy.f2.x, f2.x) && is_peer(copy.f1.y, f1.y) && is_peer(copy.f2.y, f2.y) && is_peer(copy_big_line, big_line)) {
         return true;
     }
     else return false;
 }
+
 bool Ellipse::operator!=(const Shape& s) const {
     if (dynamic_cast<const Ellipse*>(&s) == nullptr) return false;
-    const Ellipse copy = dynamic_cast<const Ellipse&>(s);
+    const Ellipse copy = dynamic_cast<const Ellipse&>(s);// Аналогично
     if (*this == copy) return false;
     else return true;
 }
+
 bool Ellipse::isCongruentTo(const Shape& sh) const {
     if (dynamic_cast<const Ellipse*>(&sh) == nullptr) return false;
     const Ellipse copy = dynamic_cast<const Ellipse&>(sh);
@@ -293,7 +297,7 @@ public:
 };
 
 //-----------------------------------------------------Конструктор---------------------------------------
-Circle::Circle(const Point& p, double r) {
+Circle::Circle(const Point& p, double r) {// А как же конструктор от суперкласса? 
     f1 = p;
     f2 = p;
     this->big_line = r;
@@ -365,7 +369,7 @@ bool Polygon::isConvex() const {
     if (povorot > 0.0) znak = 1;
     for (int i = 0; i < static_cast<int> (points.size()); ++i) {
         bool znak_current = 0;
-        if (i == static_cast<int>(points.size()) - 1) {
+        if (i == static_cast<int>(points.size()) - 1) {// А зачем size_t к int приводить, тут гораздо удобнее было бы на size_t и делать всё
             Point a = points[i];
             Point b = points[0];
             Point c = points[1];
@@ -421,12 +425,14 @@ double Polygon::area() const {
     sum = abs(sum) / 2;
     return sum;
 }
+
 bool Polygon::operator==(const Shape& sh) const {
     //проверяю по точкам со сдвигом и обратным порядком, если нужно
     if (dynamic_cast<const Polygon*>(&sh) == nullptr) return false;
     const Polygon pol = dynamic_cast<const Polygon&>(sh);
     Point a = points[0];
     if (std::find(pol.points.begin(), pol.points.end(), a) == pol.points.end() || points.size() != pol.points.size()) return false;
+    
     else {
         auto f_e = std::find(pol.points.begin(), pol.points.end(), a);
         auto f_e_copy = f_e;
@@ -493,12 +499,14 @@ bool Polygon::operator==(const Shape& sh) const {
         return true;
     }
 }
+
 bool Polygon::operator!=(const Shape& sh) const {
     if (dynamic_cast<const Polygon*>(&sh) == nullptr) return false;
     const Polygon pol = dynamic_cast<const Polygon&>(sh);
     if (*this == pol) return false;
     else return true;
 }
+
 bool Polygon::isCongruentTo(const Shape& sh) const {
     // создаю массивы длин сторон и проверяю их совпадение со сдвигом или обратным порядком
     if (dynamic_cast<const Polygon*>(&sh) == nullptr) return false;
@@ -544,6 +552,9 @@ bool Polygon::isCongruentTo(const Shape& sh) const {
     }
     return false;
 }
+
+// Не самый надёжный способ, так как могут существовать ситуации, когда площадь и пермитер совпадут, а вот фигуры окажутся разными. Хотя вероятность мала,
+// Но всё же хорошо было бы проверить длинны всех сторон с коэффициентом, а не просто площади. Так по хорошему фигура будет зафиксированна
 bool Polygon::isSimilarTo(const Shape& sh) const {
     //сравниваю отношения площадей и периметров
     if (dynamic_cast<const Polygon*>(&sh) == nullptr) return false;
@@ -554,6 +565,8 @@ bool Polygon::isSimilarTo(const Shape& sh) const {
     if (is_peer(k * k, k_proverka)) return true;
     else return false;
 }
+
+// Такой способ плохо работает для вогнутых многоугольников, так как область соединения может выходить за границы прямоугольника
 bool Polygon::containsPoint(Point p) const {
     double sum = 0;
     for (int i = 0; i < static_cast<int>(points.size()); ++i) {
@@ -689,7 +702,8 @@ public:
     ~Square() = default;
 };
 //------------------------------------------Конструктор-------------------------------------------------
-Square::Square(const Point& a, const Point& c) {
+Square::Square(const Point& a, const Point& c) {// Это ведь теже самые вычисления, что и у прямоугольника. Можно просто вызвать суперконструктор с углом 45
+    // и 2 точками
     double k = 1;
     double diag = sqrt((a.x - c.x) * (a.x - c.x) + (a.y - c.y) * (a.y - c.y));
     double long_line = sqrt(diag * diag / (1 + k * k));
@@ -769,7 +783,7 @@ public:
 
     ~Triangle() = default;
 };
-Triangle::Triangle(Point& a, Point& b, Point& c) {
+Triangle::Triangle(Point& a, Point& b, Point& c) {// Суперконструктор от списка инициализации?
     points.push_back(a);
     points.push_back(b);
     points.push_back(c);
