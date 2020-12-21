@@ -2,6 +2,8 @@
 #include <vector>
 #include <cmath>
 using namespace std;
+// Создаю дерево отрезков из массива, который поступил нам на вход, но на нечетный местах стоит тот же элемент, а на четных - первоначальный элемент с минусом
+// При запросе, где l%2!=0 будем выдавать обычную ячейку (l,r), иначе ячейка (l,r) с минусом
 void create_tree(vector<long long>& v, vector<long long>& tree, long long current_knot, long long tl, long long tr) {
 	if (tl == tr) {
 		tree[current_knot] = v[tl];
