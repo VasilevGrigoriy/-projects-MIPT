@@ -952,8 +952,8 @@ Matrix<M, N, Field>::Matrix(const Matrix<M, N, Field>& mat1) {
 //--------------------------------------СОСТАВНОЕ ПРИСВАИВАНИЕ------------------------------------------
 template<unsigned M, unsigned N, typename Field>
 Matrix<M, N, Field>& Matrix<M, N, Field>::operator+=(const Matrix<M, N, Field>& matrx) {
-	for (size_t i = 0; i < matrix.size(); ++i) {
-		for (size_t j = 0; j <matrix[0].size(); ++j) {
+	for (size_t i = 0; i < M; ++i) {
+		for (size_t j = 0; j <N; ++j) {
 			matrix[i][j] += matrx.matrix[i][j];
 		}
 	}
@@ -961,8 +961,8 @@ Matrix<M, N, Field>& Matrix<M, N, Field>::operator+=(const Matrix<M, N, Field>& 
 }
 template<unsigned M, unsigned N, typename Field>
 Matrix<M, N, Field>& Matrix<M, N, Field>::operator-=(const Matrix<M, N, Field>& matrx) {
-	for (size_t i = 0; i <matrix.size(); ++i) {
-		for (size_t j = 0; j < matrix[0].size(); ++j) {
+	for (size_t i = 0; i <M; ++i) {
+		for (size_t j = 0; j < N; ++j) {
 			matrix[i][j] -= matrx.matrix[i][j];
 		}
 	}
@@ -970,8 +970,8 @@ Matrix<M, N, Field>& Matrix<M, N, Field>::operator-=(const Matrix<M, N, Field>& 
 }
 template<unsigned M, unsigned N, typename Field>
 Matrix<M, N, Field>& Matrix<M, N, Field>::operator*=(Field elem) {
-	for (size_t i = 0; i < matrix.size(); ++i) {
-		for (size_t j = 0; j < matrix[0].size(); ++j) {
+	for (size_t i = 0; i < M; ++i) {
+		for (size_t j = 0; j < N; ++j) {
 			matrix[i][j] *= elem;
 		}
 	}
@@ -992,8 +992,8 @@ std::vector<Field>& Matrix<M, N, Field>::operator[](size_t pos) {
 template<unsigned M, unsigned N, typename Field>
 Matrix<N, M, Field> Matrix<M,N,Field>::transposed() const {
 	Matrix<N, M, Field> result;
-	for (size_t i = 0; i < matrix.size(); ++i) {
-		for (size_t j = 0; j < matrix[0].size(); ++j) {
+	for (size_t i = 0; i < M; ++i) {
+		for (size_t j = 0; j < N; ++j) {
 			result[j][i] = matrix[i][j];
 		}
 	}
@@ -1034,7 +1034,7 @@ template<unsigned M, unsigned N, typename Field>
 Field  Matrix<M, N, Field>::trace() const {
 	// Сумма элементов на главной диагонали квадратной подматрицы
 	Field trace = 0;
-	for (size_t i = 0; i < static_cast<int>(std::min(N, M)); ++i) {
+	for (size_t i = 0; i < std::min(N, M); ++i) {
 		trace += matrix[i][i];
 	}
 	return trace;
@@ -1047,7 +1047,7 @@ std::vector<Field> Matrix<M, N, Field>::getRow(unsigned pos) const {
 template<unsigned M, unsigned N, typename Field>
 std::vector<Field> Matrix<M, N, Field>::getColumn(unsigned pos) const {
 	std::vector<Field>  column(matrix[pos].size());
-	for (size_t i = 0; i < matrix[pos].size(); ++i) {
+	for (size_t i = 0; i < N; ++i) {
 		column[i] = matrix[pos][i];
 	}
 	return column;
@@ -1125,8 +1125,8 @@ Matrix<M, M, Field>::Matrix(const Matrix<M, M, Field>& mat1) {
 //-----------------------------------------СОСТАВНОЕ ПРИСВАИВАНИЕ------------------------------------
 template<unsigned M,typename Field>
 Matrix<M, M, Field>& Matrix<M, M, Field>::operator+=(const Matrix<M, M, Field>& matrx) {
-	for (size_t i = 0; i < matrix.size(); ++i) {
-		for (size_t j = 0; j < matrix[0].size(); ++j) {
+	for (size_t i = 0; i < M; ++i) {
+		for (size_t j = 0; j < M; ++j) {
 			matrix[i][j] += matrx.matrix[i][j];
 		}
 	}
@@ -1134,8 +1134,8 @@ Matrix<M, M, Field>& Matrix<M, M, Field>::operator+=(const Matrix<M, M, Field>& 
 }
 template<unsigned M,typename Field>
 Matrix<M, M, Field>& Matrix<M, M, Field>::operator-=(const Matrix<M, M, Field>& matrx) {
-	for (size_t i = 0; i < matrix.size(); ++i) {
-		for (size_t j = 0; j < matrix[0].size(); ++j) {
+	for (size_t i = 0; i <M; ++i) {
+		for (size_t j = 0; j < M; ++j) {
 			matrix[i][j] -= matrx.matrix[i][j];
 		}
 	}
@@ -1164,8 +1164,8 @@ std::vector<Field>& Matrix<M, M, Field>::operator[](size_t pos) {
 template<unsigned M,typename Field>
 Matrix<M, M, Field> Matrix<M, M, Field>::transposed() const {
 	Matrix<M, M, Field> result;
-	for (size_t i = 0; i < matrix.size(); ++i) {
-		for (size_t j = 0; j < matrix[i].size(); ++j) {
+	for (size_t i = 0; i < M; ++i) {
+		for (size_t j = 0; j < M; ++j) {
 			result[j][i] = matrix[i][j];
 		}
 	}
@@ -1216,7 +1216,7 @@ std::vector<Field> Matrix<M, M, Field>::getRow(unsigned pos) const {
 template<unsigned M,typename Field>
 std::vector<Field> Matrix<M, M, Field>::getColumn(unsigned pos) const {
 	std::vector<Field>  column;
-	for (size_t i = 0; i < matrix[static_cast<int>(pos)].size(); ++i) {
+	for (size_t i = 0; i < matrix[pos].size(); ++i) {
 		column.push_back(matrix[pos][i]);
 	}
 	return column;
@@ -1225,10 +1225,10 @@ std::vector<Field> Matrix<M, M, Field>::getColumn(unsigned pos) const {
 template<unsigned M, typename Field>
 Matrix<M, M, Field>& Matrix<M,M,Field>::operator*=(const Matrix<M, M, Field>& matr) {
 	Matrix<M, M, Field> copy = *this;
-	for (size_t i = 0; i < static_cast<int>(M); ++i) {
-		for (size_t j = 0; j < static_cast<int>(M); ++j) {
+	for (size_t i = 0; i < M; ++i) {
+		for (size_t j = 0; j < M; ++j) {
 			matrix[i][j] = 0;
-			for (size_t p = 0; p < static_cast<int>(M); ++p) {
+			for (size_t p = 0; p < M; ++p) {
 				matrix[i][j] += copy[i][p] * matr[p][j];
 			}
 		}
@@ -1241,9 +1241,9 @@ Field Matrix<M,M,Field>::det() const {
 	// Не использую деление строки на константу, поэтому может меняться только по знаку
 	Matrix<M, M, Field> copy = *this;
 	Field det = 1;
-	for (size_t i = 0; i < static_cast<int>(M); ++i) {
+	for (size_t i = 0; i < M; ++i) {
 		size_t i1 = i;
-		for (size_t j = i + 1; j < static_cast<int>(M); ++j) {
+		for (size_t j = i + 1; j < M; ++j) {
 			if (abs(copy[j][i]) > abs(copy[i1][i])) i1 = j;
 			// Ищем бОльший элемент в i-ом столбце, чтобы сделать проверку на зануление столбца
 		}
@@ -1255,14 +1255,14 @@ Field Matrix<M,M,Field>::det() const {
 		std::swap(copy[i], copy[i1]);// Поставили наибольшее число в столбце в диагональ
 		if (i != i1) det *= Field(-1); // Если строки все-таки поменялись
 		det *= copy[i][i];
-		for (size_t j = i + 1; j < static_cast<int>(M); ++j) {
+		for (size_t j = i + 1; j < M; ++j) {
 			copy[i][j] /= copy[i][i];
 		}
 		// Далее вычитаем из всех строк найденную
 		// Рассуждения аналогичны нахождению ранга
-		for (size_t j = 0; j < static_cast<int>(M); ++j) {
+		for (size_t j = 0; j < M; ++j) {
 			if (j != i && copy[j][i] != Field(0)) {
-				for (size_t i2 = i + 1; i2 < static_cast<int>(M); ++i2) {
+				for (size_t i2 = i + 1; i2 <M; ++i2) {
 					copy[j][i2] -= copy[j][i] * copy[i][i2];
 				}
 			}
@@ -1339,10 +1339,10 @@ template<unsigned M, unsigned N, unsigned P, typename Field = Rational>
 Matrix<M, N, Field> operator *(const Matrix<M, P, Field>& matr1, const Matrix<P, N, Field>& matr2) {
 	// Приведет к ошибке компиляции, если умножение будет невозможно
 	Matrix<M, N, Field> result;
-	for (size_t i = 0; i < static_cast<int>(M); ++i) {
-		for (size_t j = 0; j < static_cast<int>(N); ++j) {
+	for (size_t i = 0; i < M; ++i) {
+		for (size_t j = 0; j < N; ++j) {
 			result[i][j] = 0;
-			for (size_t p = 0; p < static_cast<int>(P); ++p) {
+			for (size_t p = 0; p < P; ++p) {
 				result[i][j] += matr1[i][p] * matr2[p][j];
 			}
 		}
@@ -1366,7 +1366,7 @@ Matrix<M, N, Field> operator -(const Matrix<M, N, Field>& matr1, const Matrix<M,
 template<unsigned M, unsigned N, unsigned P, unsigned T, typename Field = Rational>
 bool operator ==(const Matrix<M, N, Field>& matr1, const Matrix<P, T, Field>& matr2) {
 	if (M != P || T != N) return false; // Проверка несовпадения размеров
-	for (size_t i = 0; i < static_cast<int>(M); ++i) {
+	for (size_t i = 0; i <M; ++i) {
 		if (matr1[i] != matr2[i]) return false; // Проверка по строкам
 	}
 	return true;
