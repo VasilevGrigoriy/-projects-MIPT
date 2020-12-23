@@ -1,7 +1,8 @@
-﻿#include <string>
+#include <string>
 #include <iostream>
 #include <vector>
 #include <cmath>
+
 class BigInteger {
 	static const int base = 10000;
 	std::vector<int> digits;
@@ -784,7 +785,7 @@ template<int N>
 int abs(const Finite<N>& f) {
 	// Нужно для вычислений в матрицах
 	if (f.elem_finite_to_int() >= 0) return f.elem_finite_to_int();
-	else return f.elem_finite_to_int();
+	else return f.elem_finite_to_int();// Видимо не очень нужно, потому что возвращаешь ты одно и тоже
 }
 //----------------------------------КОНСТРУКТОР--------------------------------------------------------
 template<int N>
@@ -833,6 +834,7 @@ Finite<N>& Finite<N>::operator++(int) {
 	return copy;
 }
 //-------------------------------------------Булевы операции от двух аргументов-------------------------
+// А зачем столько, у тебя ведь есть конструктор от long long, остальные из первых заработают
 template<int N, int K>
 bool operator==(const Finite<N>& fn, const Finite<K>& fk) {
 	if (N != K) return false;
