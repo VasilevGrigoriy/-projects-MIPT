@@ -218,7 +218,7 @@ BigInteger& BigInteger::operator+=(const BigInteger& b) {
 }
 BigInteger& BigInteger::operator-=(const BigInteger& b) {
 	if (sign) {
-		if (b.sign) return ChangeSign(ChangeSign(*this) -= (-b));
+		if (b.sign) return ChangeSign(ChangeSign(*this) -= (-b));// Здесь в момент -b так же происходит копирование, но ладно
 		else return ChangeSign(ChangeSign(*this) += (b));
 	}
 	else if (b.sign) {
