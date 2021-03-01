@@ -186,12 +186,10 @@ size_t String::rfind(const String& s) const {
         return sz;
     }
 }
-String String::substr(const size_t& start,const size_t& count) const {
-    char* newSTR = new char[count + 1];
-    memcpy(newSTR, str + start, count);
-    newSTR[count] = '\0';
-    String s = newSTR;
-    s.sz = count;
+String String::substr(const size_t& where_begin,const size_t& how_much) const {
+    String s (how_much+1,0);
+    memcpy(s.str,str+where_begin,how_much);
+    s.str = '\0';
     return s;
 }
 bool String::empty() const {
