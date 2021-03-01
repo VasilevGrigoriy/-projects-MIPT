@@ -187,9 +187,9 @@ size_t String::rfind(const String& s) const {
     }
 }
 String String::substr(const size_t& start,const size_t& count) const {
-    char* newSTR = new char[start + 1];
+    char* newSTR = new char[count + 1];
     memcpy(newSTR, str + start, count);
-    newSTR[start] = '\0';
+    newSTR[count] = '\0';
     String s = newSTR;
     s.sz = count;
     return s;
