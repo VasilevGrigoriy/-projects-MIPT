@@ -1,0 +1,57 @@
+#include <iostream>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <string>
+
+std::vector<std::vector<bool>> make_OK(int n) {
+    std::vector<std::vector<bool>> ok(pow(2, n), std::vector<bool>(pow(2, n), 0));
+    for (long long i = 0; i < pow(2, n); i++) {
+        for (long long j = i; j < pow(2, n); j++) {
+            bool flag = 1;
+            for (int pos = 0; pos < n - 1; pos++) {
+                if ((i >> pos & 1) == (j >> pos & 1) && (i >> pos & 1) == (i >> (pos + 1) & 1) && (i >> (pos + 1) & 1) == (j >> (pos + 1) & 1)) {
+                    flag = 0;
+                }
+                if (!flag) {
+                    break;
+                }
+            }
+            ok[i][j] = flag;
+        }
+    }
+    return ok;
+}
+
+long long main_work(std::vector<std::vector<long long>>& dp, int m, int n, std::vector<std::vector<bool>>& ok) {
+    long long ans = 0;
+    for (int i = 0; i < pow(2, n); i++) {
+        dp[0][i] = 1;
+    }
+    for (int i = 0; i < m - 1; i++) {
+        for (int j = 0; j < pow(2, n); j++) {
+            for (int k = 0; k < pow(2, n); k++) {
+                if (ok[std::min(k, j)][std::max(j, k)]) {
+                    dp[i + 1][k] += dp[i][j];
+                }
+            }
+        }
+    }
+    for (int i = 0; i < pow(2, n); i++) {
+        ans += dp[m - 1][i];
+    }
+    return ans;
+}
+
+int main()
+{
+    int n, m;
+    std::cin >> n >> m;
+    if (n > m) std::swap(n, m);
+    std::vector<std::vector<bool>> ok(pow(2, n), std::vector<bool>(pow(2, n), 0));
+    ok = make_OK(n);
+    std::vector<std::vector<long long>> dp(m, std::vector<long long>(pow(2, n), 0));
+    std::cout << main_work(dp, m, n, ok);
+    return 0;
+}
