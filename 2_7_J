@@ -1,0 +1,82 @@
+#include <iostream>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <string>
+
+std::vector<std::vector<long long>> Binary(std::vector<std::vector<long long>> v) {
+	std::vector<std::vector<long long>> res(5, std::vector<long long>(5, 0));
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 5; j++) {
+			for (int k = 0; k < 5; k++) {
+				res[i][j] += (v[i][k] * v[k][j]) % 999999937;
+				res[i][j] %= 999999937;
+			}
+		}
+	}
+	return res;
+}
+
+std::vector<long long> main_work(long long bi) {
+	std::vector<long long> ans;
+	while (bi != 0) {
+		std::vector<std::vector<long long>> v(5, std::vector<long long>(5, 0));
+		v[0][0] = 1;
+		v[1][1] = 1;
+		v[2][2] = 1;
+		v[3][3] = 1;
+		v[4][4] = 1;
+		std::vector<std::vector<long long>> v_copy(5, std::vector<long long>(5, 1));
+		v_copy[3][2] = 0;
+		v_copy[3][4] = 0;
+		v_copy[4][2] = 0;
+		v_copy[4][4] = 0;
+		if (bi == 1) {
+			ans.push_back(5);
+			std::cin >> bi;
+			continue;
+		}
+		bi--;
+		while (bi) {
+			if (bi & 1) {
+				std::vector<std::vector<long long>> res(5, std::vector<long long>(5, 0));
+				for (int i = 0; i < 5; i++) {
+					for (int j = 0; j < 5; j++) {
+						for (int k = 0; k < 5; k++) {
+							res[i][j] += (v[i][k] * v_copy[k][j]) % 999999937;
+							res[i][j] %= 999999937;
+						}
+					}
+				}
+				v = res;
+			}
+			bi /= 2;
+			if (bi == 0) {
+				break;
+			}
+			v_copy = Binary(v_copy);
+		}
+		long long res_1 = 0;
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 5; j++) {
+				res_1 += v[i][j] % 999999937;
+				res_1 %= 999999937;
+			}
+		}
+		std::cin >> bi;
+		ans.push_back(res_1);
+	}
+	return ans;
+}
+
+int main()
+{
+	long long bi;
+	std::cin >> bi;
+	std::vector<long long> ans = main_work(bi);
+	for (int i = 0; i < ans.size(); i++) {
+		std::cout << ans[i] << '\n';
+	}
+	return 0;
+}
