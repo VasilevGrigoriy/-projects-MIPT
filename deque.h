@@ -23,7 +23,7 @@ private:
     *
    */
 public:
-   
+
     //----------------------------------------
 
     T& operator[](const int);
@@ -36,14 +36,14 @@ public:
     Deque& operator=(Deque);
     void swap(Deque&);
     //----------------------------------------
-    void reallocation();
+    void memory_up();
     bool is_const();
     bool is_const() const;
     //---------------------------------------
     void push_back(const T&);
     void push_front(const T&);
     void pop_back();
-    void pop_front(); 
+    void pop_front();
     //--------------------------------------КОНСТРУКТОРЫ и ДЕСТРУКТОР----------------------------------------
     Deque() {
         capacity = 3;
@@ -97,50 +97,38 @@ public:
             for (int i = capacity - 1; i >= 0; i--) {
                 delete[] reinterpret_cast<int8_t*>(deq[i]);
             }
-            this->reallocation();
+            this->memory_up();
             throw;
         }
     }
-    Deque(const Deque& d) {
-        int broke = 0;
-        try {// Безопасное создание относительно возможности не существования конструктора у Т
-            sz = d.sz;
-            capacity = d.capacity;
-            begin_i = d.begin_i;
-            begin_j = d.begin_j;
-            end_i = d.end_i;
-            end_j = d.end_j;
-            deq.resize(capacity);
-            for (int i = 0; i < capacity; ++i) {
-                deq[i] = reinterpret_cast<T*>(new int8_t[sizeof(T) * buc]);
-            }
-            int current_i = begin_i;
-            int current_j = begin_j;
-            for (broke = 0; broke < sz; broke++) {
-                new(deq[current_i] + current_j) T(d[broke]);
-                current_j++;
-                if (current_j == buc) {
-                    current_j = 0;
-                    current_i++;
-                }
-            }
+    Deque(const Deque& d, int capacity_ = -1) {
+        sz = d.sz;
+        int temp = d.end_i - d.begin_i + 1;
+        capacity = d.capacity;
+        begin_i = d.begin_i;
+        begin_j = d.begin_j;
+        end_i = d.end_i;
+        end_j = d.end_j;
+        if (capacity_ != -1) {
+            capacity = capacity_;
+            begin_i = temp;
+            end_i = 2 * temp - 1;
         }
-        catch (...) {
-            int current_i = begin_i;
-            int current_j = begin_j;
-            for (int i = 0; i < broke; i++) {
-                (deq[current_i] + current_j)->~T();
-                current_j++;
-                if (current_j == buc) {
-                    current_j = 0;
-                    current_i++;
-                }
+        deq.resize(capacity);
+        for (int i = 0; i < capacity; ++i) {
+            deq[i] = reinterpret_cast<T*>(new int8_t[sizeof(T) * buc]);
+        }
+        begin_i = temp;
+        end_i = 2 * temp - 1;
+        int current_i_1 = begin_i;
+        int current_j_1 = begin_j;
+        for (int broke = 0; broke < sz; broke++) {
+            new(deq[current_i_1] + current_j_1) T(d[broke]);
+            current_j_1++;
+            if (current_j_1 == buc) {
+                current_j_1 = 0;
+                current_i_1++;
             }
-            for (int i = capacity - 1; i >= 0; i--) {
-                delete[] reinterpret_cast<int8_t*>(deq[i]);
-            }
-            this->reallocation();
-            throw;
         }
     }
     ~Deque() {
@@ -600,6 +588,7 @@ public:
 
     void insert(iterator it, const T& val = T()) {
         std::cerr << "in" << '\n';
+        try {//на отсутствие конструктора копирования
         T copy = this->at(sz - 1);
         int curr_i_1 = end_i;
         int curr_j_1 = end_j;
@@ -629,39 +618,48 @@ public:
         }
         *(deq[it.i] + it.j) = val;
         this->push_back(copy);
+        }
+        catch (...) {
+            throw;
+        }
     }
     void insert(const_iterator it, const T& val = T()) {
         std::cerr << "in" << '\n';
-        T copy = this->at(sz - 1);
-        int curr_i_1 = end_i;
-        int curr_j_1 = end_j;
-        if (curr_j_1 >= buc) {
-            curr_j_1 = 0;
-            curr_i_1++;
-        }
-        int curr_i_2 = end_i;
-        int curr_j_2 = end_j - 1;
+        try {//на отсутствие конструктора копирования
+            T copy = this->at(sz - 1);
+            int curr_i_1 = end_i;
+            int curr_j_1 = end_j;
+            if (curr_j_1 >= buc) {
+                curr_j_1 = 0;
+                curr_i_1++;
+            }
+            int curr_i_2 = end_i;
+            int curr_j_2 = end_j - 1;
 
-        if (curr_j_2 < 0) {
-            curr_j_2 = buc - 1;
-            curr_i_2--;
-        }
-        // int pos = (it.i - begin_i - 1) * buc + (buc - begin_j) + it.j;
-        while (curr_i_1 != it.i || curr_j_1 != it.j) {
-            *(deq[curr_i_1] + curr_j_1) = *(deq[curr_i_2] + curr_j_2);
-            curr_j_1--;
-            curr_j_2--;
             if (curr_j_2 < 0) {
                 curr_j_2 = buc - 1;
                 curr_i_2--;
             }
-            if (curr_j_1 < 0) {
-                curr_j_1 = buc - 1;
-                curr_i_1--;
+            // int pos = (it.i - begin_i - 1) * buc + (buc - begin_j) + it.j;
+            while (curr_i_1 != it.i || curr_j_1 != it.j) {
+                *(deq[curr_i_1] + curr_j_1) = *(deq[curr_i_2] + curr_j_2);
+                curr_j_1--;
+                curr_j_2--;
+                if (curr_j_2 < 0) {
+                    curr_j_2 = buc - 1;
+                    curr_i_2--;
+                }
+                if (curr_j_1 < 0) {
+                    curr_j_1 = buc - 1;
+                    curr_i_1--;
+                }
             }
+            *(deq[it.i] + it.j) = val;
+            this->push_back(copy);
         }
-        *(deq[it.i] + it.j) = val;
-        this->push_back(copy);
+        catch(...){
+            throw;
+        }
     }
 
     void erase(iterator it) {
@@ -841,11 +839,10 @@ void Deque<T>::swap(Deque<T>& d) {
     std::swap(this->begin_j, d.begin_j);
     std::swap(this->end_i, d.end_i);
     std::swap(this->end_j, d.end_j);
-
 }
 //----------------------------------------------------------------------------
 template<typename T>
-void Deque<T>::reallocation() {
+void Deque<T>::memory_up() {
     try {
         if ((begin_i != 0 || begin_j != 0) && (end_i != capacity - 1 || end_j != buc - 1)) {
             return;
@@ -857,20 +854,20 @@ void Deque<T>::reallocation() {
             for (int i = 0; i < 3 * temp; ++i) {
                 new_deq[i] = reinterpret_cast<T*>(new int8_t[sizeof(T) * buc]);
             }
-            int x = begin_i;
-            int y = end_i;
+            capacity = temp * 3;
+            int current_i_1 = temp;
+            int current_j_1 = begin_j;
+            for (int broke = 0; broke < sz; broke++) {
+                new(new_deq[current_i_1] + current_j_1) T((*this)[broke]);
+                current_j_1++;
+                if (current_j_1 == buc) {
+                    current_j_1 = 0;
+                    current_i_1++;
+                }
+            }
             begin_i = temp;
             end_i = 2 * temp - 1;
-            capacity = temp * 3;
-            int new_it = temp;
-            for (int i = x; i <= y; i++) {
-                if (sz == 0) {
-                    break;
-                }
-                new_deq[new_it] = deq[i];
-                new_it++;
-            }
-            deq = new_deq;
+            this->deq = new_deq;
         }
     }
     catch (...) {
@@ -903,7 +900,7 @@ void Deque<T>::push_back(const T& elem) {
             end_j++;
         }
         new(deq[end_i] + end_j) T(elem);
-        this->reallocation();
+        this->memory_up();
     }
     catch (...) {
         (deq[end_i] + end_j)->~T();
@@ -941,7 +938,7 @@ void Deque<T>::push_front(const T& elem) {
             begin_j--;
         }
         new(deq[begin_i] + begin_j) T(elem);
-        this->reallocation();
+        this->memory_up();
     }
     catch (...) {
         (deq[begin_i] + begin_j)->~T();
@@ -985,4 +982,4 @@ void Deque<T>::pop_front() {
         begin_j++;
     }
 }
-//---------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------
