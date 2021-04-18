@@ -10,7 +10,7 @@ std::vector<std::vector<long long>> Binary(std::vector<std::vector<long long>> v
 	for (int i = 0; i < 5; i++) {
 		for (int j = 0; j < 5; j++) {
 			for (int k = 0; k < 5; k++) {
-				res[i][j] += (v[i][k] * v[k][j]) % 999999937;
+				res[i][j] += (v[i][k] * v[k][j]) % 999999937; // лучше объявить 999999937 как константу
 				res[i][j] %= 999999937;
 			}
 		}
@@ -43,7 +43,7 @@ std::vector<long long> main_work(long long bi) {
 				std::vector<std::vector<long long>> res(5, std::vector<long long>(5, 0));
 				for (int i = 0; i < 5; i++) {
 					for (int j = 0; j < 5; j++) {
-						for (int k = 0; k < 5; k++) {
+						for (int k = 0; k < 5; k++) { // лучше не делать более 3-х уровней вложенности, чтобы было читаемо
 							res[i][j] += (v[i][k] * v_copy[k][j]) % 999999937;
 							res[i][j] %= 999999937;
 						}
