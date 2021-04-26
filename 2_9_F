@@ -1,0 +1,79 @@
+
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <map>
+
+
+
+void dfs(long long& timer, std::vector<long long>& tin, std::vector<long long>& tout, std::vector<std::vector<std::pair<long long, long long>>>& g, std::vector<long long>& color, long long v) {
+	tin[v] = timer++;
+	color[v] = 1;
+	for (auto to : g[v]) {
+		if (color[to.first] != 0) continue;
+		else {
+			dfs(timer, tin, tout, g, color, to.first);
+		}
+	}
+	tout[v] = timer++;
+	color[v] = 2;
+}
+
+void cin_data(std::map<std::vector<long long>, long long>& is_ready, std::vector<std::vector<std::pair<long long, long long>>>& g, long long m) {
+	for (long long i = 0; i < m; i++) {
+		long long x, y, c;
+		std::cin >> x >> y >> c;
+		std::vector<long long> v = { x,y,c };
+		std::vector<long long> v1 = { y,x,c };
+		if ((is_ready[v] == 0) && x != y) {
+			is_ready[v] = c;
+			is_ready[v1] = c;
+		}
+		else if (x != y && is_ready[v] != 0 && is_ready[v] > c) {
+			is_ready[v] = c;
+			is_ready[v1] = c;
+		}
+		else if (x == y && is_ready[v] > c) {
+			is_ready[v] = c;
+			is_ready[v1] = c;
+		}
+	}
+	for (auto it : is_ready) {
+		g[it.first[0]].push_back({ it.first[1], it.second });
+	}
+}
+
+void Dijkstra(std::vector<long long>& dist, long long n, long long s, std::vector<std::vector<std::pair<long long, long long>>>& g) {
+	std::priority_queue<std::pair<int, int>> q;
+	q.push({ 0,s });
+	std::vector<bool> processed(n + 1, 0);
+	while (!q.empty()) {
+		long long a = q.top().second;
+		q.pop();
+		if (processed[a]) continue;
+		processed[a] = true;
+		for (auto u : g[a]) {
+			dist[u.first] = std::min(dist[u.first], dist[a] + u.second);
+			q.push({ -dist[u.first], u.first });
+		}
+	}
+}
+
+int main() {
+	long long  n, m;
+	long long s, t;
+	std::cin >> n >> m >> s >> t;
+	std::vector<std::vector<std::pair<long long, long long>>> g(n + 1);
+	std::map<std::vector<long long>, long long> is_ready;
+	cin_data(is_ready, g, m);
+	long long inf = 100'000'000;
+	std::vector<long long> dist(n + 1, inf);
+	dist[s] = 0;
+	Dijkstra(dist, n, s, g);
+	if (dist[t] == inf)
+	{
+		std::cout << -1;
+		return 0;
+	}
+	std::cout << dist[t];
+}
