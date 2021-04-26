@@ -1,0 +1,68 @@
+﻿#include <iostream>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <string>
+#include <map>
+#include <set>
+ 
+struct edge {
+    int from;
+    int to;
+};
+ 
+void euler(int v, std::vector<int>& ans, std::vector<std::vector<int>>& g, std::vector<edge>& edges, std::vector<bool>& used, std::vector<int>& ptr) {
+    while (ptr[v] != g[v].size()) {
+        int e = g[v][ptr[v]];
+        if (used[e]) {
+            ptr[v]++;
+            continue;
+        }
+        else {
+            int eg = edges[e].to;
+            used[e] = true;
+            ptr[v]++;
+            euler(eg,ans,g,edges,used,ptr);
+        }
+    }
+    ans.push_back(v);
+}
+ 
+int main()
+{
+    int n, a;
+    std::cin >> n >> a;
+    if (n == 0 || n==1) {
+        return 0;
+    }
+    std::vector<edge> edges;
+    std::vector<std::vector<int>> g(n+1);
+    std::vector<std::vector<int>> temp(n + 1, std::vector<int>(1, 0));
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= n; j++) {
+            int x;
+            std::cin >> x;
+            temp[i].push_back(x);
+        }
+    }
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <=n; j++) {
+            if (temp[i][j] == 0 && i!=j) {
+                edge e1;
+                e1.from = i;
+                e1.to = j;
+                g[i].push_back(edges.size());
+                edges.push_back(e1);
+            }
+        }
+    }
+    std::vector<bool> used(edges.size(),0);
+    std::vector<int> ptr(n+1,0);
+    std::vector<int> ans;
+    euler(a, ans, g, edges, used, ptr);
+    for (int i = ans.size()-1; i >= 1; i--) {
+        std::cout << ans[i] << ' '<<ans[i-1]<<'\n';
+    }
+    return 0;
+}
