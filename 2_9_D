@@ -1,0 +1,124 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <map>
+
+void fl_bell(std::vector<long long>& is_true, long long s, std::vector<std::vector<std::pair<long long, long long>>>& g, long long n, std::vector<std::vector<long long>>& d) {
+	d[s][0] = 0;
+	for (long long k = 0; k <= n - 1; k++) {
+		for (long long i = 1; i <= n; i++) {
+			for (auto u : g[i]) {
+				d[u.first][k + 1] = std::min(std::min(d[u.first][k + 1], d[u.first][k]), d[i][k] + u.second);
+				if (is_true[i] == 1) {
+					is_true[u.first] = 1;
+				}
+			}
+		}
+	}
+}
+
+void dfs(long long& timer, std::vector<long long>& tin, std::vector<long long>& tout, std::vector<std::vector<std::pair<long long, long long>>>& g, std::vector<long long>& color, long long v) {
+	tin[v] = timer++;
+	color[v] = 1;
+	for (auto to : g[v]) {
+		if (color[to.first] != 0) continue;
+		else {
+			dfs(timer, tin, tout, g, color, to.first);
+		}
+	}
+	tout[v] = timer++;
+	color[v] = 2;
+}
+
+void cin_data(std::map<std::vector<long long>, long long>& is_ready, std::vector<std::vector<std::pair<long long, long long>>>& g, long long m) {
+	for (long long i = 0; i < m; i++) {
+		long long x, y, c;
+		std::cin >> x >> y >> c;
+		std::vector<long long> v = { x,y,c };
+		if ((is_ready[v] == 0) && x != y) {
+			is_ready[v] = c;
+		}
+		else if (x != y && is_ready[v] != 0 && is_ready[v] > c) {
+			is_ready[v] = c;
+		}
+		else if (x == y && is_ready[v] > c) {
+			is_ready[v] = c;
+		}
+	}
+
+	for (auto it : is_ready) {
+		g[it.first[0]].push_back({ it.first[1], it.second });
+	}
+}
+
+void main_work(std::vector<std::vector<long long>>& res, std::vector<long long>& is_true, long long n, long long s, std::vector<std::vector<std::pair<long long, long long>>>& g) {
+	bool bad_ = 0;
+	std::vector<int> bads_;
+	for (long long i = 1; i <= n; i++) {
+		if (res[i][n - 1] > res[i][n] && is_true[i] == 1) {
+			bads_.push_back(i);
+			bad_ = 1;
+		}
+	}
+	if (bad_ == 0) {
+		for (long long i = 1; i <= n; i++) {
+			if (i == s) {
+				std::cout << "0" << std::endl;
+				continue;
+			}
+			if (is_true[i] == 0) {
+				std::cout << "*" << std::endl;
+				continue;
+			}
+			std::cout << res[i][n - 1] << std::endl;
+		}
+	}
+	else {
+		std::vector<long long> color(n + 1, 0);
+		std::vector<long long> tin(n + 1, 0);
+		std::vector<long long> tout(n + 1, 0);
+		long long timer = 0;
+		for (auto it : bads_) {
+			dfs(timer, tin, tout, g, color, it);
+		}
+		for (long long i = 1; i <= n; i++) {
+			if (color[i] != 0) {
+				res[i][n - 1] = -1;
+			}
+		}
+		for (long long i = 1; i <= n; i++) {
+			if (i == s && res[i][n - 1] != -1) {
+				std::cout << "0" << std::endl;
+				continue;
+			}
+			if (is_true[i] == 0) {
+				std::cout << "*" << std::endl;
+				continue;
+			}
+			if (res[i][n - 1] == -1) {
+				std::cout << "-" << std::endl;
+				continue;
+			}
+			std::cout << res[i][n - 1] << std::endl;
+		}
+	}
+}
+int main() {
+	long long n, m, s;
+	std::cin >> n >> m >> s;
+	std::vector<std::vector<std::pair<long long, long long>>> g(n + 1);
+	std::map<std::vector<long long>, long long> is_ready;
+
+	cin_data(is_ready, g, m);
+
+	std::vector<long long> is_true(n + 1, 0);
+	is_true[s] = 1;
+
+	std::vector<std::vector<long long>> res(n + 1, std::vector<long long>(n + 1, 10e17 * 9));
+
+	fl_bell(is_true, s, g, n, res);
+
+	main_work(res, is_true, n ,s, g);
+
+	return 0;
+}
