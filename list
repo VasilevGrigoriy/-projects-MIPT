@@ -9,10 +9,12 @@ class FixedAllocator {
 public:
     std::vector<int8_t*> pools_of_memory;
     size_t current_allocate_point = 0;
-    size_t  size = 64;
-    int* how_many_ptrs;
+    size_t  size = 64;// static const
+    int* how_many_ptrs;// like a stars in the sky
+
     template<size_t SZ>
     friend bool operator==(const FixedAllocator<SZ>&, const FixedAllocator<SZ>&);
+
     FixedAllocator() {
         how_many_ptrs = new int(1);
     }
@@ -24,10 +26,12 @@ public:
         how_many_ptrs = new int(1);
         return *this;
     }
+
     void new_memory_pool() {
         current_allocate_point = 0;
         pools_of_memory.push_back(new int8_t[size * chunkSize]);
     }
+
     void* allocate() {
         if (current_allocate_point >= size * chunkSize || pools_of_memory.size() == 0) {
             new_memory_pool();
@@ -38,6 +42,8 @@ public:
     }
     void deallocate(void*) {
         // не придумал, как в данном случае запихнуть вернувшуюся память запихнуть обратно в используемую
+        // 10.05: Грустно. В самом простом варианте, если не менять архитектуру, хранить стек деаллоцированных ячеек
+        // И аллоцировать из него, если он не пуст. Сделай, пока -10%
     }
     ~FixedAllocator() {
         if (*how_many_ptrs <= 1) {
@@ -60,6 +66,8 @@ bool operator==(const FixedAllocator<SZ>& all1, const FixedAllocator<SZ>& all2) 
     }
     else return false;
 }
+
+
 template <class T>
 class FastAllocator {
 private:
@@ -96,6 +104,8 @@ public:
     FastAllocator() {}
     T* allocate(size_t n) {
         if (n * sizeof(T) == 24) {
+            // Именно 24? Так ты сможешь очень ограниченный круг запросов обслужить. Лучше сделать < 24, чтобы именно мелочёвку захватить.
+            // -5%
             //         std::cerr << "1";
             return static_cast<T*>(fixedAlloc.allocate());
         }
@@ -108,7 +118,7 @@ public:
     }
     void deallocate(T* ptr, size_t n) {
         //  std::cout << sizeof(T) << " ";
-        if (n * sizeof(T) == 24) {
+        if (n * sizeof(T) == 24) {// Аналогично
             fixedAlloc.deallocate(ptr);
         }
         else {
@@ -119,6 +129,7 @@ public:
 
 template<typename T, typename Allocator = std::allocator<T>>
 class List {
+
     struct Node {
         Node* prev = nullptr;
         Node* next = nullptr;
@@ -126,10 +137,13 @@ class List {
         Node(const T& value) : val(value) {}
         Node() = default;
     };
+
     size_t sz = 0;
     Node* fake_node;
+
     typename std::allocator_traits<Allocator>::template rebind_alloc<Node> alloc;
     using AlTr = std::allocator_traits<typename std::allocator_traits<Allocator>::template rebind_alloc<Node>>;
+
     void push_back_without_argument() {
         //  std::cerr << "pub" << '\n';
         if (sz == 0) {
@@ -306,7 +320,7 @@ public:
 
         common_iterator(Node* n) :ref(n) {
         }
-        common_iterator(const common_iterator<false>& it) {
+        common_iterator(const common_iterator<false>& it) {// Здесь лучше использовать каст, а конструироваться из себе подобного
             ref = it.ref;
         }
         common_iterator& operator=(common_iterator it) {
@@ -357,11 +371,12 @@ public:
             if (ref == it.ref) return false;
             else return true;
         }
-        bool operator!=(common_iterator<true> it) const {
+        bool operator!=(common_iterator<true> it) const {// А зачем копирование кода, можно было просто от template bool U common_iterator<U>
+        // Сделать функцию
             if (ref == it.ref) return false;
             else return true;
         }
-        bool operator==(common_iterator<false> it) const {
+        bool operator==(common_iterator<false> it) const {// Аналогично
             //    std::cerr << "==\n";
             if (ref == it.ref) return true;
             else return false;
