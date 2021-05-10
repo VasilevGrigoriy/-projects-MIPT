@@ -316,11 +316,11 @@ public:
 
         //----------------------------------------------
 
-        std::conditional_t<is_const, const T&, T&> operator*() const {
+        reference operator*() const {
             //    std::cerr << "*" << '\n';
             return ref->val;
         }
-        std::conditional_t<is_const, const T*, T*> operator->() const {
+        pointer operator->() const {
             return &(ref->val);
         }
 
