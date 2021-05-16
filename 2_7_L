@@ -456,7 +456,8 @@ std::vector<std::vector<long long>> make_OK_copy(long long n, long long step) {
 		for (long long j = 0; j < step; j++) {
 			long long flag = 1;
 			for (int pos = 0; pos < n - 1; pos++) {
-				if ((i >> pos & 1) == (j >> pos & 1) && (i >> pos & 1) == (i >> (pos + 1) & 1) && (i >> (pos + 1) & 1) == (j >> (pos + 1) & 1)) { // лучше разбить на несколько условий или в несколько строк записать
+				if ((i >> pos & 1) == (j >> pos & 1) && (i >> pos & 1) == (i >> (pos + 1) & 1) && 
+					(i >> (pos + 1) & 1) == (j >> (pos + 1) & 1)) {
 					flag = 0;
 				}
 				if (!flag) {
