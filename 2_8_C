@@ -1,51 +1,53 @@
-﻿#include <iostream>
+#include <iostream>
 #include <iostream>
 #include <vector>
 #include <cmath>
 #include <algorithm>
 #include <string>
- 
-std::pair<int,int> dfs( std::vector<std::vector<int>>& g, std::vector<int>& color, int v, int p, std::vector<int>& par){
+#define white 0
+#define grey 1
+#define black 2
+    std::pair<int, int> dfs(std::vector<std::vector<int>>& g, std::vector<int>& color, int v, int p, std::vector<int>& par) {
     par[v] = p;
-    color[v] = 1;
+    color[v] = grey;
     int ans = 0;
     int ans1 = 0;
-    std::pair<int, int> pr = {0,0};
+    std::pair<int, int> pr = { 0,0 };
     for (int to : g[v]) {
-        if (color[to] == 1) { // лучше сделать define или enum для значений color
+        if (color[to] == grey) { // лучше сделать define или enum для значений color
             ans = v;
             return { ans,to };
             break;
         }
-        else if (color[to] != 0) continue;
+        else if (color[to] != white) continue;
         else {
-             pr = dfs( g, color, to, v, par);
-             if (pr.first!=0 && pr.second!=0) {
-                 break;
-             }
+            pr = dfs(g, color, to, v, par);
+            if (pr.first != 0 && pr.second != 0) {
+                break;
+            }
         }
     }
-    color[v] = 2;
+    color[v] = black;
     return pr;
 }
- 
+
 int main()
 {
     int n;
-    std::cin >> n;  
+    std::cin >> n;
     int m;
     std::cin >> m;
     std::vector<std::vector<int>> g(n + 1);
     for (int i = 1; i <= m; i++) {
-        int x,y;
-        std::cin >> x>>y;
+        int x, y;
+        std::cin >> x >> y;
         g[x].push_back(y);
     }
- 
-    std::vector<int> color(n + 1, 0);
+
+    std::vector<int> color(n + 1, white);
     std::vector<int> par(n + 1, 0);
     bool flag = false;
-    std::pair<int, int> ans = {0,0};
+    std::pair<int, int> ans = { 0,0 };
     for (int i = 1; i <= n; i++) {
         ans = dfs(g, color, i, 0, par);
         if (ans.first != 0) {
@@ -70,7 +72,7 @@ int main()
             std::cout << answer[i] << ' ';
         }
     }
-    
+
     else {
         std::cout << "NO";
     }
