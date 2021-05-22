@@ -1,0 +1,64 @@
+﻿#include <iostream>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <string>
+#include <queue>
+#include <map>
+ 
+int problem( long long n, long long s, std::vector<std::vector<std::pair<long long, long long>>>& g) {
+	int weigh = 0;
+	std::priority_queue<std::pair<int, int>> q;
+	q.push({ 0,s });
+	std::vector<bool> processed(n + 1, 0);
+	while (!q.empty()) {
+		long long a = q.top().second;
+		long long b = -q.top().first;
+		q.pop();
+		if (processed[a]) continue;
+		processed[a] = true;
+		weigh += b;
+		for (auto u : g[a]){
+			q.push({ -u.second, u.first });
+		}
+	}
+	return weigh;
+ 
+}
+ 
+ 
+void cin_data(std::map<std::vector<long long>, long long>& is_ready, std::vector<std::vector<std::pair<long long, long long>>>& g, long long m) {
+	for (long long i = 0; i < m; i++) {
+		long long x, y, c;
+		std::cin >> x >> y >> c;
+		std::vector<long long> v = { x,y,c };
+		std::vector<long long> v1 = { y,x,c };
+		if ((is_ready[v] == 0) && x != y) {
+			is_ready[v] = c;
+			is_ready[v1] = c;
+		}
+		else if (x != y && is_ready[v] != 0 && is_ready[v] > c) {
+			is_ready[v] = c;
+			is_ready[v1] = c;
+		}
+		else if (x == y && is_ready[v] > c) {
+			is_ready[v] = c;
+			is_ready[v1] = c;
+		}
+	}
+	for (auto it : is_ready) {
+		g[it.first[0]].push_back({ it.first[1], it.second });
+	}
+}
+ 
+int main()
+{
+	int n, m;
+	std::cin >> n >> m;
+	std::vector<std::vector<std::pair<long long, long long>>> g(n + 1);
+	std::map<std::vector<long long>, long long> is_ready;
+	cin_data(is_ready, g, m);
+	int k = problem(n, 1, g);
+	std::cout << k;
+}
