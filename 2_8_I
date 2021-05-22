@@ -6,14 +6,19 @@
 #include <string>
 #include <map>
 #include <set>
+#define white 0
+#define grey 1
+#define black 2
+
+
 void dfs(int& timer, std::set<int>& articulation_point, std::vector<int>& ret, std::vector<int>& tin, std::vector<int>& tout, std::vector<std::vector<int>>& g, std::vector<int>& color, int v, int p){
     int how_many_children = 0;
     tin[v] = timer++;
     ret[v] = tin[v];
-    color[v] = 1;
+    color[v] = grey;
     for (int to : g[v]) {
         if (to == p) continue;
-        if (color[to] != 0) ret[v] = std::min(ret[v], tin[to]);
+        if (color[to] != white) ret[v] = std::min(ret[v], tin[to]);
         else {
             dfs(timer, articulation_point, ret, tin, tout, g, color, to, v);
             how_many_children++;
@@ -47,7 +52,7 @@ int main()
         g[y].push_back(x);
     }
  
-    std::vector<int> color(n + 1, 0);
+    std::vector<int> color(n + 1, white);
     std::vector<int> par(n + 1, 0);
     std::vector<int> tout(n + 1, 0);
     std::vector<int> tin(n + 1, 0);
@@ -56,7 +61,7 @@ int main()
  
     std::set<int> articulation_point;
     for (int i = 1; i <= n; i++) {
-        if (color[i] == 0 || g[i].size()==0) {
+        if (color[i] == white || g[i].size()==0) {
             dfs(timer, articulation_point, ret, tin, tout, g, color, i, -1);
         }
     }
