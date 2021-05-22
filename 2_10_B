@@ -1,0 +1,53 @@
+#include <iostream>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <string>
+#include <queue>
+#include <map>
+long long problem(std::vector<std::pair<long long, std::pair<long long, long long>>>& edges, long long n, long long s, 
+                    std::vector<std::vector<std::pair<long long, long long>>>& g, std::vector<long long>& index, std::vector<long long>& parent) {
+	long long weigh = 0;
+	for (long long i = 0; i < edges.size();i++) {
+		if (index[edges[i].second.first] != index[edges[i].second.second]) {
+			weigh += edges[i].first;
+			long long new_element = index[edges[i].second.first];
+			long long elderly = index[edges[i].second.second];
+			for (long long j = 1; j <= n; j++) {
+				if (index[j] == elderly) {
+					index[j] = new_element;
+				}
+			}
+		}
+	}
+	return weigh;
+}
+ 
+ 
+void cin_data(std::vector<std::pair<long long, std::pair<long long, long long>>>& edges,std::map<std::vector<long long>, 
+                  long long>& is_ready, std::vector<std::vector<std::pair<long long, long long>>>& g, long long m) {
+	for (long long i = 0; i < m; i++) {
+		long long x, y, c;
+		std::cin >> x >> y >> c;
+		edges.push_back({ c, std::make_pair(x,y) });
+	}
+}
+ 
+int main()
+{
+	long long n, m;
+	std::cin >> n >> m;
+	std::vector<long long> index(n + 1);
+	for (long long i = 1; i <= n; i++) {
+		index[i] = i;
+	}
+	std::vector<long long> parent(n + 1, -1);
+	std::vector<std::vector<std::pair<long long, long long>>> g(n + 1);
+	std::vector<std::pair<long long, std::pair<long long, long long>>> edges;
+	std::map<std::vector<long long>, long long> is_ready;
+	cin_data(edges,is_ready, g, m);
+	std::sort(edges.begin(), edges.end());
+	long long k = problem(edges,n, 1, g, index, parent);
+	std::cout << k;
+}
