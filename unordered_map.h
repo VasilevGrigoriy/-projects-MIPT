@@ -48,10 +48,13 @@ public:
 
         }
     };
+
+
     Node* fake_node = nullptr;
     typename std::allocator_traits<Allocator>::template rebind_alloc<Node> alloc;
     using AlTr = std::allocator_traits<typename std::allocator_traits<Allocator>::template rebind_alloc<Node>>;
     typename std::allocator_traits<Allocator>::template rebind_alloc<T> copy = alloc;
+
     explicit List(const Allocator& allocat = Allocator()) : alloc(allocat) {
         // std::cerr << "common_create\n";
         fake_node = AlTr::allocate(alloc, 1);
@@ -182,7 +185,7 @@ public:
         fake_node = AlTr::allocate(alloc, 1);
         fake_node->prev = fake_node;
         fake_node->next = fake_node;
-        if (l.size() == 0) {
+        if (l.size() == 0) {// if (l.size() != 0){...}
 
         }
         else {
@@ -430,7 +433,7 @@ private:
     int begin_lst = 0;
     int end_lst = 0;
 
-    void change(const UnorderedMap& m) {
+    void change(const UnorderedMap& m) {// По факту это default копирование
         hash = m.hash;
         is_equal = m.is_equal;
         map = m.map;
@@ -441,7 +444,7 @@ private:
         ld_factor = m.ld_factor;
         used_buckets = m.used_buckets;
     }
-    void muv(UnorderedMap& m) {
+    void muv(UnorderedMap& m) {// Аналогично
         hash = std::move(m.hash);
         is_equal = std::move(m.is_equal);
         map = std::move(m.map);
@@ -455,6 +458,7 @@ private:
     Value& main_function(const Key& key, int flag = 0) {//0 - метод at, 1 - метод []
         this->rehash(3 * map_size);
         auto hs = hash(key) % (map_size - 1) + 1;
+        
         if (map[hs].first.size() > 0) {
             for (auto i = map[hs].first.begin(); i != map[hs].first.end(); ++i) {
                 if (is_equal((*i).first, key)) {
@@ -478,7 +482,6 @@ private:
                     begin_lst = hs;
                     map[hs].first.push_front(std::make_pair(key, Value()));
                     used_buckets++;
-
                 }
                 else if (sz == 1) {
                     map[hs].first.push_front(std::make_pair(key, Value()));
@@ -559,7 +562,7 @@ public:
         ld_factor(std::move(m.ld_factor)), used_buckets(std::move(m.used_buckets)),
         sz(std::move(m.sz)), begin_lst(std::move(m.begin_lst)), end_lst(std::move(m.end_lst)),
         hash(std::move(m.hash)), is_equal(std::move(m.is_equal)), map(std::move(m.map))
-    {
+    {// default
         m.mx_load_factor = 0;
         m.begin_lst = 0;
         m.end_lst = 0;
@@ -602,7 +605,7 @@ public:
             return (*temp).second;
         }
         else {
-            if (sz == 0) {
+            if (sz == 0) {// Лучше бы это вывел в отдельную функцию, раз приходится переиспользовать
                 begin_lst = hs;
                 map[hs].first.push_front(std::make_pair(std::move(key), Value()));
                 used_buckets++;
@@ -631,7 +634,7 @@ public:
             return (*temp).second;
         }
     }
-    Value& at(const Key& key) {
+    Value& at(const Key& key) {// В итоге at без универсальностей обошлась))
         auto hs = hash(key) % (map_size - 1) + 1;
         if (map[hs].first.size() > 0) {
             for (auto i = map[hs].first.begin(); i != map[hs].first.end(); ++i) {
@@ -668,6 +671,7 @@ public:
         std::conditional_t<is_const, typename bucket::const_iterator, typename bucket::iterator> current;
         using Map = std::conditional_t<is_const, const std::vector<Chain, vector_alloc>&, std::vector<Chain, vector_alloc>&>;
         std::conditional_t<is_const, const std::vector<Chain, vector_alloc>*, std::vector<Chain, vector_alloc>*> maps;//почему-то без этого итератор не видит поля map, иначе не получится итерироваться по map
+        // А он и не должен, ведь наличие внутри класса только автоматически friend накидывает, но не создаёт экземпляр класса, к полям которого нужно обращаться
         int cached;//хеш высчитанный
         //------------------------------------------------------------------
 
@@ -866,7 +870,7 @@ public:
             ld_factor = int(sz / used_buckets);
             return { temp_1, 1 };
         }
-        else {
+        else {// Зачем тогда было универсальный добавлятор делать?
             if (sz == 0) {
                 begin_lst = hs;
                 map[hs].first.push_front(std::forward<E>(elem));
@@ -925,7 +929,7 @@ public:
             for_emplace.delete_ptrs();
             return { temp_1, 1 };
         }
-        else {
+        else {// И вновь повторяшка. Как много можно было бы сэкономить места то...
             if (sz == 0) {
                 begin_lst = hs;
                 map[hs].first.push_node(iter_to_elem.ref);
