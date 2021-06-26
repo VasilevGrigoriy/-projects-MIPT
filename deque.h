@@ -240,6 +240,8 @@ public:
         }
 
         //убрал
+        // Ну зачем((( . Надо было сделать common_iterator (const common_iterator& it)
+        // И ещё operator common_iterator<true>(). Ай, фиг с ним 
         common_iterator& operator=(common_iterator& it) {
             i = it.i;
             j = it.j;
