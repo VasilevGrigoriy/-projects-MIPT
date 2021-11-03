@@ -1,0 +1,59 @@
+﻿#include <iostream>
+#include <string>
+#include <vector>
+ 
+#pragma GCC optimize("Ofast,no-stack-protector")
+#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,avx2,tune=native")
+#pragma GCC optimize("unroll-loops")
+#pragma GCC optimize("fast-math")
+#pragma GCC optimize("section-anchors")
+#pragma GCC optimize("profile-values,profile-reorder-functions,tracer")
+#pragma GCC optimize("vpt")
+#pragma GCC optimize("rename-registers")
+#pragma GCC optimize("move-loop-invariants")
+#pragma GCC optimize("unswitch-loops")
+#pragma GCC optimize("function-sections")
+#pragma GCC optimize("data-sections")
+#pragma GCC optimize("branch-target-load-optimize")
+#pragma GCC optimize("branch-target-load-optimize2")
+#pragma GCC optimize("btr-bb-exclusive")
+ 
+void z_func(const std::string& s) {
+    int l = -1, r = -1;
+    int n = s.size();
+    std::vector<int> z(n);
+    z[0] = 0;
+    std::cout << z[0] << ' ';
+    for (int i = 1; i < n; ++i) {
+        if (r < i) {
+            while (i + z[i] < n && s[z[i]] == s[i + z[i]]) ++z[i];
+            if (i + z[i] - 1 > r) {
+                l = i;
+                r = i + z[i] - 1;
+            }
+            std::cout << z[i] << ' ';
+            continue;
+        }
+        if (r >= i && i + z[i - l] <= r) {
+            z[i] = z[i - l];
+            std::cout << z[i] << ' ';
+            continue;
+        }
+        if (l <= i && i + z[i - l] > r) {
+            z[i] =  r - i + 1;
+        }
+        while (i + z[i] < n && s[z[i]] == s[i + z[i]]) ++z[i];
+        if (i + z[i] - 1 > r) {
+            l = i;
+            r = i + z[i] - 1;
+        }
+        std::cout << z[i] << ' ';
+    }
+}
+ 
+int main()
+{
+    std::string s;
+    std::cin >> s;
+    z_func(s);
+}
