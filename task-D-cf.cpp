@@ -2,13 +2,8 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-
-int main()
-{
-    std::string s;
-    std::cin >> s;
+std::vector<std::string> make_for_pars(std::string& s){
     std::vector<std::string> for_pars;
-    std::vector<std::string> ans;
     int i = 0;
     for (int i = 0; i < s.size(); ++i) {
         if (s[i] == '.') ans.push_back(".");
@@ -25,7 +20,11 @@ int main()
         }
 
     }
+}
+std::string make_res(std::vector<std::string>& for_pars, std::string& s){
+    int i = 0;
     int j = 0;
+    std::vector<std::string> ans;
     std::sort(for_pars.begin(), for_pars.end());
     for (int i = 0; i < ans.size(); i++) {
         if (ans[i] == "_") {
@@ -37,6 +36,13 @@ int main()
     for (int i = 0; i < ans.size(); i++) {
         res += ans[i];
     }
+}
+int main()
+{
+    std::string s;
+    std::cin >> s;
+    std::vector<std::string> for_pars = make_for_pars(s);
+    std::string res = make_res(for_pars, s);
     std::cout << res;
 }
 
