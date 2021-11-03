@@ -1,9 +1,8 @@
-﻿#include <iostream>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <algorithm>
-std::vector<std::string> make_for_pars(std::string& s){
-    std::vector<std::string> for_pars;
+void make_for_pars(std::vector<std::string>& for_pars, std::vector<std::string>& ans, std::string& s) {
     int i = 0;
     for (int i = 0; i < s.size(); ++i) {
         if (s[i] == '.') ans.push_back(".");
@@ -21,10 +20,9 @@ std::vector<std::string> make_for_pars(std::string& s){
 
     }
 }
-std::string make_res(std::vector<std::string>& for_pars, std::string& s){
+std::string make_res(std::vector<std::string>& for_pars, std::vector<std::string>& ans, std::string& s) {
     int i = 0;
     int j = 0;
-    std::vector<std::string> ans;
     std::sort(for_pars.begin(), for_pars.end());
     for (int i = 0; i < ans.size(); i++) {
         if (ans[i] == "_") {
@@ -36,13 +34,15 @@ std::string make_res(std::vector<std::string>& for_pars, std::string& s){
     for (int i = 0; i < ans.size(); i++) {
         res += ans[i];
     }
+    return res;
 }
 int main()
 {
     std::string s;
     std::cin >> s;
-    std::vector<std::string> for_pars = make_for_pars(s);
-    std::string res = make_res(for_pars, s);
+    std::vector<std::string> for_pars;
+    std::vector<std::string> ans;
+    make_for_pars(for_pars, ans, s);
+    std::string res = make_res(for_pars, ans, s);
     std::cout << res;
 }
-
