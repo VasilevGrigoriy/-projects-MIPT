@@ -23,7 +23,7 @@ void make_for_pars(std::vector<std::string>& for_pars, std::vector<std::string>&
 std::string make_res(std::vector<std::string>& for_pars, std::vector<std::string>& ans, std::string& s) {
     int i = 0;
     int j = 0;
-    std::sort(for_pars.begin(), for_pars.end());
+    std::sort(for_pars.begin(), for_pars.end()); // Нужно было реализовать используя бор - работает за О(длина текста), а  std::sort - за klogk * (длина самого длинного слова), k - число слов
     for (int i = 0; i < ans.size(); i++) {
         if (ans[i] == "_") {
             ans[i] = for_pars[j];
