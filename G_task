@@ -1,0 +1,106 @@
+#include <iostream>
+#include <vector>
+#include <complex>
+const long double PI = 3.1415926535897932384626433832795;
+ 
+std::vector<long long> make_rev(long long k) {
+    std::vector<long long> rev((1<<k));
+    rev[0] = 0;
+    long long oldest = -1;
+    for (long long mask = 1; mask < (1 << k); ++mask) {
+        if (!(mask & (mask - 1))) ++oldest;
+        rev[mask] = rev[mask ^ (1 << oldest)] | (1 << (k - oldest - 1));
+    }
+    return rev;
+}
+ 
+void FFT(long long k, std::vector<std::complex<long double>>& arr, bool inv) {
+    for (long long j = 0; j < k; j++) {
+        long long sz = 1 << (j + 1);
+        for (long long i = 0; i < arr.size(); i += sz) {
+            long double ang = 2 * PI / sz;
+            if (inv) ang *= -1;
+            std::complex<long double> w(cos(ang), sin(ang));
+            std::complex<long double> w_temp(1);
+            for (long long s = 0; s < sz/2; ++s) {
+                std::complex<long double> x = arr[i + s];
+                std::complex<long double> y = arr[i + s + sz/2];
+                arr[i + s] = x + w_temp * y;
+                arr[i+s+sz/2] = x - w_temp * y;
+                w_temp *= w;
+            }
+        }
+    }
+}
+ 
+long long myRound(long double x)
+{
+    long long temp1 = x + 0.5;
+    long long temp2 = x - 0.5;
+    if (x > 0) return temp1;
+    return temp2;
+}
+ 
+int main()
+{
+    
+    long long n;
+    std::cin >> n;
+    std::vector<std::complex<long double>> pol1_copy(n+1);
+    for (long long i = n; i >= 0; i--) {
+        std::complex<long double> x;
+        std::cin >> x;
+        pol1_copy[i] = x;
+    }
+    long long m;
+    std::cin >> m;
+    std::vector<std::complex<long double>> pol2_copy(m + 1);
+    for (long long i = m; i >= 0; i--) {
+        std::complex<long double> x;
+        std::cin >> x;
+        pol2_copy[i] = x;
+    }
+    long long r_sz = m + n+1;
+    long long k = 0;
+    while ((1 << k) < (r_sz)) k++;
+    long long mas_sz = 1<<k;
+    std::vector<std::complex<long double>> pol1(mas_sz, 0);
+    for (long long i = n; i >= 0; i--) {
+        pol1[i] = pol1_copy[i];
+    }
+    std::vector<std::complex<long double>> pol2(mas_sz, 0);
+    for (long long i = m; i >= 0; i--) {
+        pol2[i] = pol2_copy[i];
+    }
+    std::vector<long long> rev = make_rev(k);
+    pol1_copy.resize(mas_sz, 0);
+    pol2_copy.resize(mas_sz, 0);
+    for (long long i = 0; i < mas_sz; i++) {
+        pol1_copy[rev[i]] = pol1[i];
+        pol2_copy[rev[i]] = pol2[i];
+    }
+    FFT(k,pol1_copy,false);
+    FFT(k,pol2_copy, false);
+    std::vector< std::complex<long double>> r(mas_sz, 0);
+    for (long long i = 0; i < mas_sz; i++) {
+        r[i] = pol1_copy[i] * pol2_copy[i];
+    }
+    std::vector< std::complex<long double>> r_copy(mas_sz, 0);
+    for (long long i = 0; i < mas_sz; i++) {
+        r_copy[rev[i]] = r[i];
+    }
+    FFT(k,r_copy, true);
+    std::cout << n + m << ' ';
+    for (long long i = 0; i < mas_sz; i++) {
+        r_copy[i] /= mas_sz;
+    }
+    long long j = mas_sz - 1;
+    while (myRound(r_copy[j].real()) == 0) {
+            j--;
+    }
+    for (long long i = j; i >= 0; i--) {
+        long long ans= round(r_copy[i].real());
+        std::cout << ans << ' ';
+    }
+ 
+}
