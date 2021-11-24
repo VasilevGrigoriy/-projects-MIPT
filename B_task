@@ -1,0 +1,35 @@
+#include <iostream>
+#include <vector>
+
+long long sieve(std::vector<long long>& mind, std::vector<long long>& primes) {
+    long long res = 0;
+    for (int i = 2; i <= (mind.size() - 1)/2; i++) {
+        if (mind[i] == 0) {
+            mind[i] = i;
+            primes.push_back(i);
+            res -= mind[i];
+        }
+        for (auto p : primes) {
+            if (p * i > mind.size() - 1)break;
+            if (p <= mind[i] || mind[i] == -1) {
+                if (p * i > (mind.size() - 1) / 2) {
+                    res -= mind[p * i];
+                    res += p;
+                }
+                mind[p * i] = p;
+            }
+        }
+        res += mind[i];
+    }
+    return res;
+}
+ 
+int main()
+{
+    long long N;
+    std::cin >> N;
+    std::vector<long long> mind(N + 1, 0);
+    std::vector<long long> primes;
+    std::cout<<sieve(mind, primes);
+ 
+}
