@@ -1,0 +1,123 @@
+#include <vector>
+#include <iostream>
+#include <cmath>
+ 
+const long long p = 1000000000 + 7;
+std::vector<long long> all_facts;
+std::vector<long long> all_reverse_facts;
+long long multi(long long a, long long b) {
+	long long ans = ((a * b) % p);
+	return ans;
+}
+long long fast_comp(long long a, long long b) {
+	long long res = 0;
+	while (b) {
+		if (b % 2 == 1) {
+			res += a;
+			res %= p;
+		}
+		a += a;
+		a %= p;
+		b >>= 1;
+	}
+	return res;
+}
+ 
+long long fast_pow(long long a, long long b) {
+	long long res = 1;
+	while (b) {
+		if (b % 2 == 1) {
+			res = multi(res, a);
+		}
+		a = multi(a,a);
+		b >>= 1;
+	}
+	return res;
+}
+ 
+long long C(long long n, long long k) {
+	double res = 1;
+	for (int i = 1; i <= k; ++i) {
+		res = res * (n - k + i) / i;
+	}
+	return (int)(res + 0.01)%p;
+}
+ 
+long long make_good(long long elem) {
+	while (elem >= p)
+		elem %= p;
+	while (elem < 0)
+		elem += p;
+	return elem;
+}
+ 
+ 
+void find_reverse_elem(long long a, long long b, long long& x, long long& y) {
+	if (a == 0) {
+		x = 0; y = 1;
+		return;
+	}
+	find_reverse_elem(b % a, a, x, y);
+	long long temp = x;
+	x = ((y - (b / a) * x % p) + p) % p;
+	y = temp;
+	return;
+}
+ 
+long long S(long long n, long long k) {
+	long long ans = 0;
+	std::vector<int> minus = {1, p-1};
+	for (int i = 0; i <= k; i++) {
+		long long temp1 = make_good(all_facts[k]*all_reverse_facts[k-i]);
+		temp1 = make_good(temp1*all_reverse_facts[i]);
+		temp1 = make_good(temp1*minus[i&1]);
+		temp1 = make_good(temp1* (fast_pow(k-i, n)));
+		ans = make_good(ans+temp1);
+	}
+	return make_good(ans*all_reverse_facts[k]);
+}
+ 
+long long find_ans(std::vector<long long>& v, long long n, long long k) {
+	long long sum = 0;
+	for (int j = 0; j < n; j++) {
+		sum = make_good(sum+v[j]);
+	}
+	long long temp1 = S(n, k);
+	long long temp2 = multi((n - 1) , S(n - 1, k));
+	temp1 = make_good(temp1+temp2);
+	sum = multi(sum,temp1);
+	return sum;
+}
+ 
+void fact_and_rev_fact(long long n) {
+	long long fact = 1;
+	long long rev_fact = 1;
+	all_facts.push_back(1);
+	all_facts.push_back(1);
+	all_reverse_facts.push_back(1);
+	all_reverse_facts.push_back(1);
+	for (int j = 2; j <= n; j++) {
+		fact = multi(fact,j); 
+		rev_fact = multi(rev_fact,fast_pow(j, p - 2));
+		all_facts.push_back(fact);
+		all_reverse_facts.push_back(rev_fact);
+	}
+}
+ 
+int main()
+{
+	std::ios::sync_with_stdio(0);
+	std::cin.tie(0);
+	std::cout.tie(0);
+	long long n, k;
+	std::cin >> n >> k;
+	std::vector<long long> v;
+	for (int i = 0; i < n; i++) {
+		long long x;
+		std::cin >> x;
+		x = (x + p) % p;
+		v.push_back(x);
+	}
+	fact_and_rev_fact(k);
+	std::cout<<find_ans(v, n, k);
+}
