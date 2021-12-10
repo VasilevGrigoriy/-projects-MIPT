@@ -1,0 +1,273 @@
+#include <algorithm>
+#include <iostream>
+#include <map>
+#include <vector>
+#include <set>
+#include <string>
+#include <queue>
+#include <cmath>
+
+const double ACC = 1e-7;
+
+long double scal(long double x0, long double y0, long double x1, long double y1){
+  return (x0 * x1 + y0 * y1);
+}
+long double vect(long double x0, long double y0, long double x1, long double y1){
+  return (x0 * y1 - y0 * x1);
+}
+long double len(long double x0, long double y0){
+  return std::sqrt(x0*x0 + y0 * y0);
+}
+long double triag_area(long double x0, long double y0, long double x1, long double y1){
+  return std::abs(vect(x0, y0, x1, y1) / 2);
+}
+bool is_peer(double a, double b) {
+  if (abs(a - b) < 1e-6) return true;
+  else return false;
+}
+bool is_parall(long double a1, long double b1, long double c1,
+               long double a2, long double b2, long double c2) {
+  if((is_peer(a1,0) && (is_peer(a2,0))) && (!is_peer(b1,0) || !is_peer(b2,0))) return true;
+  if((is_peer(b1,0) && (is_peer(b2,0))) && (!is_peer(a1,0) || !is_peer(a2,0))) return true;
+  if ((is_peer(a1,0) && !(is_peer(a2,0))) || (!is_peer(a1,0) && (is_peer(a2,0)))) return false;
+  if ((is_peer(b1,0) && !(is_peer(b2,0))) || (!is_peer(b1,0) && (is_peer(b2,0)))) return false;
+  long double k = double(double(a1) / double(a2));
+  if (is_peer(a1, k * a2) && is_peer(b1, k * b2)) return true;
+  else return false;
+}
+std::pair<long double, long double> inters(long double a1, long double b1, long double c1,
+                      long double a2, long double b2, long double c2){
+  long double del = a1 * b2 - a2 * b1;
+  long double del1 = -c1 * b2 + c2 * b1;
+  long double del2 = -a1 * c2 + a2 * c1;
+  return std::make_pair(double(double(del1)/double(del)), double(double(del2)/double(del)));
+}
+long double find_dist(long double a1, long double b1, long double c1,
+                      long double x1, long double y1 ){
+  return double(double(std::abs(a1 * x1 + b1 * y1 + c1))/double(std::sqrt(a1 * a1 + b1 * b1)));
+}
+const long double error = 1e-6;
+bool is_here(int a, int b, double c){
+  return (std::min(a,b) <= c + error) && (c<=std::max(a,b) + error);
+}
+bool is_on_another(int a, int b, int c, int d){
+  return std::max(std::min(a,b), std::min(c,d)) <= std::min(std::max(a,b), std::max(c,d));
+}
+struct point{
+  long long x;
+  long long y;
+  point(long long x, long long y):x(x), y(y){}
+};
+
+std::string is_convex(std::vector<point>& shape){
+  int j = 0;
+  bool is_bad = 0;
+  bool is_lower_zero = 0;
+  while(1){
+    if(j == 0 && is_bad){
+      return "NO";
+    }
+    long long v1x;
+    long long v1y;
+    long long v2x;
+    long long v2y;
+    if(j == shape.size() - 2){
+      v1x = shape[j+1].x-shape[j].x;
+      v1y = shape[j+1].y-shape[j].y;
+      v2x = shape[0].x-shape[j+1].x;
+      v2y = shape[0].y-shape[j+1].y;
+    }
+    else if(j == shape.size() -1){
+      v1x = shape[0].x-shape[j].x;
+      v1y = shape[0].y-shape[j].y;
+      v2x = shape[1].x-shape[0].x;
+      v2y = shape[1].y-shape[0].y;
+    }else {
+      v1x = shape[j + 1].x - shape[j].x;
+      v1y = shape[j + 1].y - shape[j].y;
+      v2x = shape[j + 2].x - shape[j + 1].x;
+      v2y = shape[j+ 2].y - shape[j + 1].y;
+    }
+    if(vect(v1x,v1y,v2x,v2y) == 0){
+      j++;
+      is_bad = 1;
+    }
+    else{
+      is_lower_zero = vect(v1x,v1y,v2x,v2y) < 0 ? 1: 0;
+      break;
+    }
+  }
+  bool is_convex = 1;
+  for(int i=1;i<shape.size();i++){
+    long long v1x;
+    long long v1y;
+    long long v2x;
+    long long v2y;
+    if(i == shape.size() - 2){
+      v1x = shape[i+1].x-shape[i].x;
+      v1y = shape[i+1].y-shape[i].y;
+      v2x = shape[0].x-shape[i+1].x;
+      v2y = shape[0].y-shape[i+1].y;
+    }
+    else if(i == shape.size() -1){
+      v1x = shape[0].x-shape[i].x;
+      v1y = shape[0].y-shape[i].y;
+      v2x = shape[1].x-shape[0].x;
+      v2y = shape[1].y-shape[0].y;
+    }else {
+      v1x = shape[i + 1].x - shape[i].x;
+      v1y = shape[i + 1].y - shape[i].y;
+      v2x = shape[i + 2].x - shape[i + 1].x;
+      v2y = shape[i + 2].y - shape[i + 1].y;
+    }
+    if(is_lower_zero && vect(v1x,v1y,v2x,v2y) > 0) {
+      is_convex = 0;
+      break;
+    }
+    if(!is_lower_zero && vect(v1x,v1y,v2x,v2y) < 0) {
+      is_convex = 0;
+      break;
+    }
+  }
+  return is_convex? "YES":"NO";
+}
+bool is_intersect(int x0_1, int y0_1, int x0_2, int y0_2,
+                  int x1_1, int y1_1, int x1_2, int y1_2) {
+  if ((x0_1 == x0_2 && y0_1 == y0_2) && (x1_1 == x1_2 && y1_1 == y1_2)) {
+    if ((x0_1 == x1_1 && y0_1 == y1_1)) {
+      return 1;
+    } else {
+      return 0;
+    }
+  } else if ((x0_1 == x0_2 && y0_1 == y0_2)) {
+    if (is_here(x1_1, x1_2, x0_1) && is_here(y1_1, y1_2, y0_1)) {
+      return 1;
+    } else {
+      return 0;
+    }
+  } else if ((x1_1 == x1_2 && y1_1 == y1_2)) {
+    if (is_here(x0_1, x0_2, x1_1) && is_here(y0_1, y0_2, y1_1)) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  int a1 = y0_1 - y0_2;
+  int b1 = x0_2 - x0_1;
+  int c1 = x0_1 * y0_2 - x0_2 * y0_1;
+  int a2 = y1_1 - y1_2;
+  int b2 = x1_2 - x1_1;
+  int c2 = x1_1 * y1_2 - x1_2 * y1_1;
+  if (!is_parall(a1, b1, c1, a2, b2, c2)) {
+    std::pair<long double, long double> inter = inters(a1, b1, c1, a2, b2, c2);
+    if (is_here(x0_1, x0_2, inter.first) && is_here(x1_1, x1_2, inter.first) &&
+        is_here(y0_1, y0_2, inter.second) && is_here(y1_1, y1_2, inter.second)) {
+      return 1;
+    } else {
+      return 0;
+    }
+    return 0;
+  } else {
+    if ((a1 * c2 - a2 * c1) == 0 && (b1 * c2 - b2 * c1) == 0 &&
+        is_on_another(x0_1, x0_2, x1_1, x1_2) &&
+        is_on_another(y0_1, y0_2, y1_1, y1_2)) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+}
+bool is_on_otr(point p, point p1, point p2){
+  if ((p.x - p1.x) * (p2.y - p1.y) == (p2.x- p1.x) * (p.y - p1.y)) {
+    if (std::min(p1.y, p2.y) <= p.y && (std::max(p1.y, p2.y) >= p.y) &&
+    std::min(p1.x, p2.x) <= p.x && std::max(p1.x, p2.x) >= p.x){
+      return 1;
+    }
+  }
+  return 0;
+}
+std::string is_in_shape(std::vector<point>& shape, point& p){
+  bool is_in_shape = 0;
+  for(int i =0;i<shape.size();i++){
+    int j = (i+1)%shape.size();
+    if(is_on_otr(p, point(shape[i].x, shape[i].y), point(shape[j].x, shape[j].y))) return "YES";
+  }
+  point B(100000, p.y+1);
+  for(int i =0;i<shape.size();i++){
+    int j = (i+1)%shape.size();
+    if(is_intersect(p.x, p.y, B.x,B.y, shape[i].x, shape[i].y, shape[j].x, shape[j].y))
+      is_in_shape = !is_in_shape;
+  }
+  return is_in_shape? "YES":"NO";
+}
+
+std::vector<point> convex_hull(std::vector<std::pair<long long, long long>>& shape, int ind){
+  std::sort(shape.begin(), shape.end());
+  std::vector<std::pair<long long, long long>> upper;
+  std::vector<std::pair<long long, long long>> lower;
+  upper.push_back(shape[0]);
+  lower.push_back(shape[0]);
+  for(int i = 1;i<shape.size();i++){
+    if(i + 1 == shape.size() || vect(shape[i].first - shape[0].first,
+            shape[i].second - shape[0].second,
+            shape[shape.size()-1].first - shape[i].first,
+            shape[shape.size()-1].second - shape[i].second) > 0){
+      while(lower.size() >= 2 &&
+          vect(lower[lower.size()-1].first - lower[lower.size()-2].first,
+               lower[lower.size()-1].second - lower[lower.size()-2].second,
+               shape[i].first - lower[lower.size()-1].first,
+               shape[i].second - lower[lower.size()-1].second) <= 0) {
+        lower.pop_back();
+      }
+      lower.push_back(shape[i]);
+    }
+    if(i + 1 == shape.size() || vect(shape[i].first - shape[0].first,
+                                 shape[i].second - shape[0].second,
+                                 shape[shape.size()-1].first - shape[i].first,
+                                 shape[shape.size()-1].second - shape[i].second) < 0) {
+      while (upper.size() >= 2 &&
+          vect(upper[upper.size() - 1].first - upper[upper.size() - 2].first,
+               upper[upper.size() - 1].second - upper[upper.size() - 2].second,
+               shape[i].first - upper[upper.size() - 1].first,
+               shape[i].second - upper[upper.size() - 1].second) >= 0) {
+        upper.pop_back();
+      }
+      upper.push_back(shape[i]);
+    }
+  }
+  std::vector<point> ans;
+  for(int i = 0;i<lower.size();i++)
+    ans.push_back(point(lower[i].first, lower[i].second));
+  for(int i = upper.size() - 2;i > 0;i--)
+    ans.push_back(point(upper[i].first, upper[i].second));
+  return ans;
+}
+int main() {
+  std::cout.precision(10);
+  int n;
+  std::cin>>n;
+  std::vector<std::pair<long long, long long>> shape;
+  point mn(1000000, 1000000);
+  int ind_of_min = -1;
+  for(int i=0;i<n;i++){
+    long long x,y;
+    std::cin>>x>>y;
+    if(mn.x > x){
+      ind_of_min = i;
+      mn.x = x;
+      mn.y = y;
+    }else if(mn.x == x){
+      if(mn.y < mn.x){
+        ind_of_min = i;
+        mn.x = x;
+        mn.y = y;
+      }
+    }
+    shape.push_back(std::make_pair(x,y));
+  }
+  std::vector<point> conv_hull = convex_hull(shape, ind_of_min);
+  std::cout<<conv_hull.size()<<'\n';
+  for(int i =0;i < conv_hull.size();i++){
+    std::cout << conv_hull[i].x << ' ' << conv_hull[i].y << '\n';
+  }
+}
